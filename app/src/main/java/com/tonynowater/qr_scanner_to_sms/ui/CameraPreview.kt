@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -24,6 +25,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -35,7 +37,7 @@ import java.util.concurrent.Executors
 
 var temp = ""
 var tempTimeStamp = 0L
-var intervalTimeInMilliSeconds = 3000L
+var intervalTimeInMilliSeconds = 6000L
 
 //TODO error handling
 @Composable
@@ -148,9 +150,10 @@ private fun processImageProxy(
                     if (temp == value && diffTime < intervalTimeInMilliSeconds) {
                         return@addOnSuccessListener
                     }
-                    temp = value
-                    tempTimeStamp = System.currentTimeMillis()
+
                     if (TWCovid19SmsFormat.isValid(value)) {
+                        temp = value
+                        tempTimeStamp = System.currentTimeMillis()
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
                             data = (Uri.parse("sms:1922"))
                             putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
