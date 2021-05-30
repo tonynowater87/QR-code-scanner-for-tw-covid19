@@ -4,6 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
+import android.os.VibrationEffect
+import android.os.Vibrator
+import android.util.Size
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -11,12 +15,9 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -32,15 +33,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.tonynowater.qr_scanner_to_sms.utils.TWCovid19SmsFormat
 import java.util.concurrent.Executors
-import android.os.VibrationEffect
-
-import android.os.Build
-
-import androidx.core.content.ContextCompat.getSystemService
-
-import android.os.Vibrator
-
-
 
 
 var temp = ""
@@ -122,8 +114,7 @@ private fun setupImageAnalysis(context: Context): ImageAnalysis {
     val scanner = BarcodeScanning.getClient(options)
 
     return ImageAnalysis.Builder()
-        //.setTargetResolution(screenSize)
-        //.setTargetAspectRatio(AspectRatio.RATIO_4_3)
+        .setTargetResolution(Size(1280, 720))
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
         .apply {
