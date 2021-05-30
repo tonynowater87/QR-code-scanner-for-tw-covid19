@@ -49,7 +49,7 @@ var intervalTimeInMilliSeconds = 6000L
 
 //TODO error handling
 @Composable
-fun CameraPreview(analyzer: ImageAnalysis.Analyzer) {
+fun CameraPreview(modifier: Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
@@ -70,9 +70,7 @@ fun CameraPreview(analyzer: ImageAnalysis.Analyzer) {
             }, executor)
             preview
         },
-        modifier = Modifier
-            .fillMaxSize(1F)
-            .shadow(1.dp, RoundedCornerShape(20.dp)),
+        modifier = modifier
     )
 }
 
