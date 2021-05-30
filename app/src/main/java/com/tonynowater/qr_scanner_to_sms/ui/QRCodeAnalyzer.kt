@@ -6,7 +6,7 @@ import androidx.camera.core.ImageProxy
 
 class QRCodeAnalyzer : ImageAnalysis.Analyzer {
     override fun analyze(image: ImageProxy) {
-        Log.d("[DEBUG]", "image = $image")
+        //Log.d("[DEBUG]", "image = $image")
         image.close()
     }
 }
