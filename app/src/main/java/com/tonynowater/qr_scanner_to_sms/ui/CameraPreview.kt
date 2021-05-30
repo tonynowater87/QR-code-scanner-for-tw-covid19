@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.util.Log
 import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
@@ -25,7 +24,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -34,6 +32,16 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.tonynowater.qr_scanner_to_sms.utils.TWCovid19SmsFormat
 import java.util.concurrent.Executors
+import android.os.VibrationEffect
+
+import android.os.Build
+
+import androidx.core.content.ContextCompat.getSystemService
+
+import android.os.Vibrator
+
+
+
 
 var temp = ""
 var tempTimeStamp = 0L
@@ -152,6 +160,7 @@ private fun processImageProxy(
                     }
 
                     if (TWCovid19SmsFormat.isValid(value)) {
+                        vibrate(context)
                         temp = value
                         tempTimeStamp = System.currentTimeMillis()
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
@@ -175,6 +184,21 @@ private fun processImageProxy(
                 imageProxy.image?.close()
                 imageProxy.close()
             }
+    }
+}
+
+private fun vibrate(context: Context) {
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        vibrator.vibrate(
+            VibrationEffect.createOneShot(
+                250,
+                VibrationEffect.DEFAULT_AMPLITUDE
+            )
+        )
+    } else {
+        //deprecated in API 26
+        vibrator.vibrate(250)
     }
 }
 

@@ -5,6 +5,7 @@
     <!-- Declare features -->
     <uses-feature android:name="android.hardware.camera" />
 
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <!-- Declare permissions -->
     <uses-permission android:name="android.permission.CAMERA" />
 
