@@ -1,38 +1,42 @@
 package com.tonynowater.qr_scanner_to_sms
 
+import android.Manifest
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.tonynowater.qr_scanner_to_sms.ui.CameraPreview
+import com.tonynowater.qr_scanner_to_sms.ui.QRCodeAnalyzer
 import com.tonynowater.qr_scanner_to_sms.ui.theme.QRScannerToSmsTheme
 
 class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            QRScannerToSmsTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(color = MaterialTheme.colors.background) {
-                    Greeting("Android")
+
+    val cameraResult = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
+        Log.d("[DEBUG]", "permission granted = $it")
+        if (it) {
+            setContent {
+                QRScannerToSmsTheme {
+                    CameraPreview(analyzer = QRCodeAnalyzer())
                 }
             }
+        } else {
+            finish()
         }
     }
-}
 
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        cameraResult.launch(Manifest.permission.CAMERA)
+    }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
     QRScannerToSmsTheme {
-        Greeting("Android")
+        CameraPreview(analyzer = QRCodeAnalyzer())
     }
 }

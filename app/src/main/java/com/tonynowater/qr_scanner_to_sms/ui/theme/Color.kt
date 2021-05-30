@@ -2,7 +2,10 @@ package com.tonynowater.qr_scanner_to_sms.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple200 = Color(0xFFBB86FC)
-val Purple500 = Color(0xFF6200EE)
-val Purple700 = Color(0xFF3700B3)
-val Teal200 = Color(0xFF03DAC5)
+val DARK_PRIMARY_COLOR = Color(0xFF455A64)
+val LIGHT_PRIMARY_COLOR = Color(0xFFCFD8DC)
+
+val SECONDARY_TEXT_COLOR = Color(0xFF757575)
+
+
+
