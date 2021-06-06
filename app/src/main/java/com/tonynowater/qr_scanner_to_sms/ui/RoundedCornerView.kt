@@ -42,7 +42,7 @@ fun RoundedCornerView() {
     val arrowSideLength = 40.dp
     val screenWidthDp = LocalConfiguration.current.screenWidthDp
     val rectSideLength = screenWidthDp.dp - padding - padding
-    val startPointY = (screenWidthDp / 2).dp
+    val startPointY = 0.dp
 
     Canvas(
         modifier = Modifier
