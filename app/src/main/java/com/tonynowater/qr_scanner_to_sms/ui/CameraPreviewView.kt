@@ -41,7 +41,7 @@ var intervalTimeInMilliSeconds = 6000L
 
 //TODO error handling
 @Composable
-fun CameraPreview(modifier: Modifier) {
+fun CameraPreviewView(modifier: Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val screenHeightDp = LocalConfiguration.current.screenHeightDp
