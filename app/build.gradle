@@ -63,8 +63,9 @@ dependencies {
     // CameraX View class
     implementation "androidx.camera:camera-view:1.0.0-alpha24"
 
-    def mlkit_version = "16.1.3"
-    implementation "com.google.android.gms:play-services-mlkit-barcode-scanning:${mlkit_version}"
+    def mlkit_version = "16.1.2"
+    // Use this dependency to bundle the model with your app
+    implementation "com.google.mlkit:barcode-scanning:${mlkit_version}"
 
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
