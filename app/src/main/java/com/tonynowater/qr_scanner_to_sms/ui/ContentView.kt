@@ -20,16 +20,20 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieAnimationSpec
+import com.airbnb.lottie.compose.rememberLottieAnimationState
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
+import com.tonynowater.qr_scanner_to_sms.BuildConfig
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
+import com.tonynowater.qr_scanner_to_sms.R
 import com.tonynowater.qr_scanner_to_sms.ui.theme.QRScannerToSmsTheme
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -47,6 +51,13 @@ fun ContentView(vm: MainViewModel? = null) {
     )
     val coroutineScope = rememberCoroutineScope()
     val draggableEnableHeight = LocalConfiguration.current.screenHeightDp.dp / 4 * 3
+
+    val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.swipe_up_gesture) }
+    val animationState = rememberLottieAnimationState(
+        autoPlay = true,
+        repeatCount = Integer.MAX_VALUE
+    )
+
 
     ProvideWindowInsets {
         QRScannerToSmsTheme {
@@ -164,18 +175,38 @@ fun ContentView(vm: MainViewModel? = null) {
                             .fillMaxSize(),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        Image(
-                            painter = painterResource(id = android.R.drawable.arrow_up_float),
-                            contentDescription = "設定",
+                        LottieAnimation(
+                            spec = animationSpec,
+                            animationState = animationState,
                             modifier = Modifier
-                                .size(20.dp)
-                                .clickable {
+                                .size(80.dp)
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = interactionSource
+                                ) {
                                     coroutineScope.launch {
                                         if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                                             bottomSheetScaffoldState.bottomSheetState.expand()
                                         }
                                     }
                                 })
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .systemBarsPadding()
+                            .padding(4.dp)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.BottomEnd
+                    ) {
+                        Text(
+                            text = "v${BuildConfig.VERSION_NAME}",
+                            color = Color.White,
+                            modifier = Modifier.wrapContentSize(),
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = TextUnit(10F, TextUnitType.Sp)
+                        )
                     }
                 }
             }

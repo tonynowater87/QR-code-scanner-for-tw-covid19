@@ -10,8 +10,8 @@ android {
         applicationId "com.tonynowater.qr_scanner_to_sms"
         minSdk 21
         targetSdk 30
-        versionCode 2
-        versionName "1.0.1"
+        versionCode 3
+        versionName "1.0.2"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -21,7 +21,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -56,7 +57,9 @@ dependencies {
     implementation "androidx.datastore:datastore-preferences:1.0.0-beta01"
     implementation "androidx.datastore:datastore:1.0.0-beta01"
 
-    implementation "com.google.accompanist:accompanist-insets:0.9.0" //fitsystem
+    implementation "com.google.accompanist:accompanist-insets:0.10.0" //fitsystem
+
+    implementation "com.airbnb.android:lottie-compose:1.0.0-beta07-1"
 
     def camerax_version = "1.0.0"
     // CameraX core library using camera2 implementation

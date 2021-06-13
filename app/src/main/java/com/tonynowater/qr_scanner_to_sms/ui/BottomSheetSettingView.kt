@@ -49,7 +49,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         },
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(text = "成功掃描時震動", color = SECONDARY_TEXT_COLOR)
+                    Text(text = "掃描成功時震動", color = SECONDARY_TEXT_COLOR)
                     Spacer(modifier = Modifier.size(2.dp))
                     Switch(
                         checked = vm.vibration,
