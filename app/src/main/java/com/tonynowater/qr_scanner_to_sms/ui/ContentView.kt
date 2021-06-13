@@ -23,14 +23,17 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.insets.statusBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
+import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.ui.theme.QRScannerToSmsTheme
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
 
+@InternalCoroutinesApi
 @ExperimentalMaterialApi
 @ExperimentalComposeApi
 @Composable
-fun ContentView() {
+fun ContentView(vm: MainViewModel? = null) {
 
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
@@ -44,7 +47,7 @@ fun ContentView() {
                 sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
                 sheetPeekHeight = 0.dp,
                 sheetContent = {
-                    BottomSheetSettingView()
+                    BottomSheetSettingView(vm!!)
                 }
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -52,7 +55,8 @@ fun ContentView() {
                     CameraPreviewView(
                         modifier = Modifier
                             .fillMaxSize()
-                            .shadow(1.dp, RoundedCornerShape(20.dp))
+                            .shadow(1.dp, RoundedCornerShape(20.dp)),
+                        vm = vm!!
                     )
 
                     // top mask

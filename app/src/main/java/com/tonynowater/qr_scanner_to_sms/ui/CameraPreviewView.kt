@@ -18,11 +18,8 @@ import androidx.camera.view.PreviewView
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
@@ -31,7 +28,9 @@ import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.utils.TWCovid19SmsFormat
+import kotlinx.coroutines.InternalCoroutinesApi
 import java.util.concurrent.Executors
 
 
@@ -40,14 +39,11 @@ var tempTimeStamp = 0L
 var intervalTimeInMilliSeconds = 6000L
 
 //TODO error handling
+@InternalCoroutinesApi
 @Composable
-fun CameraPreviewView(modifier: Modifier) {
+fun CameraPreviewView(vm: MainViewModel, modifier: Modifier) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
-    val screenHeightDp = LocalConfiguration.current.screenHeightDp
-    val screenWidthDp = LocalConfiguration.current.screenWidthDp
-    val screenHeightPixel = with(LocalDensity.current) { screenHeightDp.dp.roundToPx() }
-    val screenWidthPixel = with(LocalDensity.current) { screenWidthDp.dp.roundToPx() }
     val cameraProvideFuture = remember { ProcessCameraProvider.getInstance(context) }
     val executor = ContextCompat.getMainExecutor(context)
 
@@ -58,7 +54,7 @@ fun CameraPreviewView(modifier: Modifier) {
                 PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
             cameraProvideFuture.addListener({
                 val cameraProvider = cameraProvideFuture.get()
-                bindPreview(context, lifecycleOwner, preview, cameraProvider)
+                bindPreview(context, lifecycleOwner, preview, cameraProvider, vm)
             }, executor)
             preview
         },
@@ -66,11 +62,13 @@ fun CameraPreviewView(modifier: Modifier) {
     )
 }
 
+@InternalCoroutinesApi
 private fun bindPreview(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     previewView: PreviewView,
-    cameraProvider: ProcessCameraProvider
+    cameraProvider: ProcessCameraProvider,
+    vm: MainViewModel
 ) {
     val preview = Preview.Builder()
         .build()
@@ -86,12 +84,13 @@ private fun bindPreview(
     cameraProvider.bindToLifecycle(
         lifecycleOwner,
         cameraSelector,
-        setupImageAnalysis(context),
+        setupImageAnalysis(context, vm),
         preview
     )
 }
 
-private fun setupImageAnalysis(context: Context): ImageAnalysis {
+@InternalCoroutinesApi
+private fun setupImageAnalysis(context: Context, vm: MainViewModel): ImageAnalysis {
 
     // configure our MLKit BarcodeScanning client
 
@@ -119,16 +118,18 @@ private fun setupImageAnalysis(context: Context): ImageAnalysis {
         .build()
         .apply {
             setAnalyzer(Executors.newSingleThreadExecutor()) {
-                processImageProxy(context, scanner, it)
+                processImageProxy(context, scanner, it, vm)
             }
         }
 }
 
+@InternalCoroutinesApi
 @SuppressLint("UnsafeOptInUsageError")
 private fun processImageProxy(
     context: Context,
     barcodeScanner: BarcodeScanner,
-    imageProxy: ImageProxy
+    imageProxy: ImageProxy,
+    vm: MainViewModel
 ) {
     imageProxy.image?.let { image ->
         val inputImage =
@@ -149,7 +150,9 @@ private fun processImageProxy(
                     }
 
                     if (TWCovid19SmsFormat.isValid(value)) {
-                        vibrate(context)
+                        if (vm.vibration) {
+                            vibrate(context)
+                        }
                         temp = value
                         tempTimeStamp = System.currentTimeMillis()
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
