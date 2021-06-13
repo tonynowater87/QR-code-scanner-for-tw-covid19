@@ -119,7 +119,7 @@ fun ContentView(vm: MainViewModel? = null) {
                             .statusBarsPadding(),
                         contentAlignment = Alignment.Center
                     ) {
-                        RoundedCornerView()
+                        RoundedCornerView(vm)
                     }
 
                     Box(

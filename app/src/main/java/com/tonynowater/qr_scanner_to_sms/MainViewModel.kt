@@ -29,6 +29,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var vibration: Boolean by mutableStateOf(false)
         private set
 
+    var roundedCornerAnimate: Boolean by mutableStateOf(false)
+        private set
+
     init {
         Log.d("[DEBUG]", "vm init: ")
         viewModelScope.launch {
@@ -37,7 +40,23 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     it[vibrateKey]
                 }.collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
+                        Log.d("[DEBUG]", "vibration changed = $value")
                         vibration = value ?: true
+                    }
+                })
+            } catch (e: Exception) {
+                Log.d("[DEBUG]", "vm init exception = $e")
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                dataStore.data.map {
+                    it[roundedCornerAnimateKey]
+                }.collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
+                        roundedCornerAnimate = value ?: false
                     }
                 })
             } catch (e: Exception) {
@@ -48,7 +67,13 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun updateVibrate() {
         dataStore.edit {
-            it[vibrateKey] = it[vibrateKey]?.not() ?: false // first will be null
+            it[vibrateKey] = it[vibrateKey]?.not() ?: false // default value is true, and first time will be null, so return false when null
+        }
+    }
+
+    suspend fun updateRoundedCornerAnimation() {
+        dataStore.edit {
+            it[roundedCornerAnimateKey] = it[roundedCornerAnimateKey]?.not() ?: true // default value is false, and first time will be null, so return true when null
         }
     }
 

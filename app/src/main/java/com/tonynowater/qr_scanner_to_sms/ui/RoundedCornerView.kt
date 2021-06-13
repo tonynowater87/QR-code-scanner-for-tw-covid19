@@ -12,16 +12,19 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
+import com.tonynowater.qr_scanner_to_sms.MainViewModel
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 @Composable
-fun RoundedCornerView() {
+fun RoundedCornerView(vm: MainViewModel) {
 
     val duration = 1500
 
     val infiniteTransition = rememberInfiniteTransition()
     val infinitelyAnimatedFloatStrokeWidth = infiniteTransition.animateFloat(
         initialValue = 12F,
-        targetValue = 8F,
+        targetValue = if (vm.roundedCornerAnimate) 8F else 12F,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = duration),
             repeatMode = RepeatMode.Reverse
@@ -29,8 +32,8 @@ fun RoundedCornerView() {
     )
 
     val infinitelyAnimatedFloatPosition = infiniteTransition.animateFloat(
-        initialValue = -10F,
-        targetValue = 10F,
+        initialValue = if (vm.roundedCornerAnimate) -10F else 0F,
+        targetValue = if (vm.roundedCornerAnimate) 10F else 0F,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = duration, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse

@@ -1,20 +1,17 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Colors
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
-import com.tonynowater.qr_scanner_to_sms.ui.theme.ACCENT_COLOR
 import com.tonynowater.qr_scanner_to_sms.ui.theme.SECONDARY_TEXT_COLOR
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -39,29 +36,42 @@ fun BottomSheetSettingView(vm: MainViewModel) {
             horizontalGap = 4.dp,
             verticalGap = 4.dp,
             content = {
-                for (tag in settingsTag) {
-                    Text(
-                        text = "#$tag",
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier
-                            .background(
-                                if (vm.vibration) ACCENT_COLOR else SECONDARY_TEXT_COLOR,
-                                RoundedCornerShape(4.dp)
-                            )
-                            .padding(4.dp)
-                            .clickable {
-                                coroutineScope.launch {
-                                    vm.updateVibrate()
-                                }
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable {
+                            coroutineScope.launch {
+                                vm.updateVibrate()
                             }
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "成功掃描時震動", color = SECONDARY_TEXT_COLOR)
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Switch(
+                        checked = vm.vibration,
+                        onCheckedChange = null
+                    )
+                }
+
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable {
+                            coroutineScope.launch {
+                                vm.updateRoundedCornerAnimation()
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "掃描框框動畫", color = SECONDARY_TEXT_COLOR)
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Switch(
+                        checked = vm.roundedCornerAnimate,
+                        onCheckedChange = null
                     )
                 }
             }
         )
     }
 }
-
-val settingsTag = listOf(
-    "震動"
-)
