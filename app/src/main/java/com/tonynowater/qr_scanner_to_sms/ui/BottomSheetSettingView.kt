@@ -1,11 +1,13 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 fun BottomSheetSettingView(vm: MainViewModel) {
 
     val coroutineScope = rememberCoroutineScope()
+    val interactionSource = remember { MutableInteractionSource() }
 
     Column(
         modifier = Modifier
@@ -39,7 +42,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                 Row(
                     modifier = Modifier
                         .wrapContentSize()
-                        .clickable {
+                        .clickable(indication = null, interactionSource = interactionSource) {
                             coroutineScope.launch {
                                 vm.updateVibrate()
                             }
@@ -57,7 +60,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                 Row(
                     modifier = Modifier
                         .wrapContentSize()
-                        .clickable {
+                        .clickable(indication = null, interactionSource = interactionSource) {
                             coroutineScope.launch {
                                 vm.updateRoundedCornerAnimation()
                             }
