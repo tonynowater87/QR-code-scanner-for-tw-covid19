@@ -19,10 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieAnimationSpec
@@ -136,22 +133,23 @@ fun ContentView(vm: MainViewModel? = null) {
                             .statusBarsPadding(),
                         contentAlignment = Alignment.TopCenter
                     ) {
-                        Row(Modifier.padding(top = 8.dp)) {
+                        Row(
+                            Modifier.padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Text(
                                 text = "實聯制",
                                 color = Color.White,
                                 modifier = Modifier.wrapContentSize(),
                                 textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = TextUnit(24F, TextUnitType.Sp)
+                                style = MaterialTheme.typography.h5
                             )
                             Text(
                                 text = " QRCode掃描小工具",
                                 color = Color.White,
                                 modifier = Modifier.wrapContentSize(),
                                 textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Normal,
-                                fontSize = TextUnit(20F, TextUnitType.Sp)
+                                style = MaterialTheme.typography.h6
                             )
                         }
                     }
@@ -186,7 +184,26 @@ fun ContentView(vm: MainViewModel? = null) {
                                             bottomSheetScaffoldState.bottomSheetState.expand()
                                         }
                                     }
-                                })
+                                }
+                        )
+                        Text(
+                            text = "設定請點這裡",
+                            color = Color.White,
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .offset(y = 4.dp)
+                                .clickable(
+                                    indication = null,
+                                    interactionSource = interactionSource
+                                ) {
+                                    coroutineScope.launch {
+                                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
+                                            bottomSheetScaffoldState.bottomSheetState.expand()
+                                        }
+                                    }
+                                },
+                            style = MaterialTheme.typography.caption
+                        )
                     }
 
                     Box(
@@ -201,8 +218,7 @@ fun ContentView(vm: MainViewModel? = null) {
                             color = Color.White,
                             modifier = Modifier.wrapContentSize(),
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = TextUnit(10F, TextUnitType.Sp)
+                            style = MaterialTheme.typography.caption
                         )
                     }
                 }
