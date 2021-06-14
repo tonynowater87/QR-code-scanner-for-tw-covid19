@@ -32,13 +32,14 @@ fun BottomSheetSettingView(vm: MainViewModel) {
             .padding(20.dp)
             .height(200.dp)
     ) {
-        Text(text = "功能設定", modifier = Modifier.fillMaxWidth(), color = Color.Black)
-        Spacer(modifier = Modifier.height(8.dp))
-        simpleFlowRow(
+        Column(
             modifier = Modifier.padding(0.dp),
-            horizontalGap = 4.dp,
-            verticalGap = 4.dp,
             content = {
+
+                Text(text = "功能設定", modifier = Modifier.fillMaxWidth(), color = Color.Black)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Row(
                     modifier = Modifier
                         .wrapContentSize()
@@ -57,23 +58,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     )
                 }
 
-                Row(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .clickable(indication = null, interactionSource = interactionSource) {
-                            coroutineScope.launch {
-                                vm.updateRoundedCornerAnimation()
-                            }
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "掃描框框動畫", color = SECONDARY_TEXT_COLOR)
-                    Spacer(modifier = Modifier.size(2.dp))
-                    Switch(
-                        checked = vm.roundedCornerAnimate,
-                        onCheckedChange = null
-                    )
-                }
+                Spacer(modifier = Modifier.height(8.dp))
 
                 Row(
                     modifier = Modifier
@@ -92,6 +77,24 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         onCheckedChange = null
                     )
                 }
+
+                /*Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(indication = null, interactionSource = interactionSource) {
+                            coroutineScope.launch {
+                                vm.updateRoundedCornerAnimation()
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "掃描框框動畫", color = SECONDARY_TEXT_COLOR)
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Switch(
+                        checked = vm.roundedCornerAnimate,
+                        onCheckedChange = null
+                    )
+                }*/
             }
         )
     }

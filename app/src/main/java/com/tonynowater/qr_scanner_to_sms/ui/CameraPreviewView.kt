@@ -157,12 +157,13 @@ private fun processImageProxy(
                         temp = value
                         tempTimeStamp = System.currentTimeMillis()
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             data = (Uri.parse("sms:1922"))
                             putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
                         })
 
                         if (vm.finishAfterScanned) {
-                            (context as? Activity)?.finish()
+                            (context as? Activity)?.finishAndRemoveTask()
                         }
                     }
                 }
