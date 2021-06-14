@@ -27,6 +27,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     private val dataStore = app.dataStore
 
+    var enableCameraPermission: Boolean by mutableStateOf(false)
+        private set
+
     var vibration: Boolean by mutableStateOf(true)
         private set
 
@@ -82,6 +85,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 Log.d("[DEBUG]", "vm init exception = $e")
             }
         }
+    }
+
+    fun enableCameraPermission() {
+        enableCameraPermission = true
     }
 
     suspend fun updateVibrate() {

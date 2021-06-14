@@ -92,12 +92,14 @@ fun ContentView(vm: MainViewModel? = null) {
                         }
                     }) {
 
-                    CameraPreviewView(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .shadow(1.dp, RoundedCornerShape(20.dp)),
-                        vm = vm!!
-                    )
+                    if (vm!!.enableCameraPermission) {
+                        CameraPreviewView(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .shadow(1.dp, RoundedCornerShape(20.dp)),
+                            vm = vm
+                        )
+                    }
 
                     // top mask
                     Box(
