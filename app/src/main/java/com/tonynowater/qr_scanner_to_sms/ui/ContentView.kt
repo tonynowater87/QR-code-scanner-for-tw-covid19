@@ -1,6 +1,5 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectDragGestures
@@ -28,9 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.airbnb.lottie.compose.LottieAnimation
 import com.airbnb.lottie.compose.LottieAnimationSpec
 import com.airbnb.lottie.compose.rememberLottieAnimationState
-import com.google.accompanist.insets.ProvideWindowInsets
-import com.google.accompanist.insets.statusBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
+import com.google.accompanist.insets.*
 import com.tonynowater.qr_scanner_to_sms.BuildConfig
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.R
@@ -58,7 +55,6 @@ fun ContentView(vm: MainViewModel? = null) {
         repeatCount = Integer.MAX_VALUE
     )
 
-
     ProvideWindowInsets {
         QRScannerToSmsTheme {
             BottomSheetScaffold(
@@ -71,6 +67,7 @@ fun ContentView(vm: MainViewModel? = null) {
             ) {
                 Box(modifier = Modifier
                     .fillMaxSize()
+                    .navigationBarsPadding()
                     .clickable(indication = null, interactionSource = interactionSource) {
                         coroutineScope.launch {
                             if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
