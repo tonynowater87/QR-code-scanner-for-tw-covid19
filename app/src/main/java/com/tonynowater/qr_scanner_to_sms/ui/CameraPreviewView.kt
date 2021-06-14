@@ -1,6 +1,7 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -159,6 +160,10 @@ private fun processImageProxy(
                             data = (Uri.parse("sms:1922"))
                             putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
                         })
+
+                        if (vm.finishAfterScanned) {
+                            (context as? Activity)?.finish()
+                        }
                     }
                 }
             }
@@ -203,3 +208,17 @@ private fun hasBackCamera(cameraProvider: ProcessCameraProvider): Boolean {
 private fun hasFrontCamera(cameraProvider: ProcessCameraProvider): Boolean {
     return cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)
 }
+
+/**
+ * TODO
+ * 2021-06-14 14:43:08.058 2148-2290/com.tonynowater.qr_scanner_to_sms D/Camera2CameraImpl: {Camera@25808f19[id=0]} Posting surface closed
+ * java.lang.Throwable
+ * at androidx.camera.camera2.internal.Camera2CameraImpl.postSurfaceClosedError(Camera2CameraImpl.java:1028)
+ * at androidx.camera.camera2.internal.Camera2CameraImpl$2.onFailure(Camera2CameraImpl.java:988)
+ * at androidx.camera.core.impl.utils.futures.Futures$CallbackListener.run(Futures.java:338)
+ * at androidx.camera.core.impl.utils.executor.SequentialExecutor$QueueWorker.workOnQueue(SequentialExecutor.java:229)
+ * at androidx.camera.core.impl.utils.executor.SequentialExecutor$QueueWorker.run(SequentialExecutor.java:171)
+ * at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1112)
+ * at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:587)
+ * at java.lang.Thread.run(Thread.java:818)
+ */

@@ -22,28 +22,32 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     companion object {
         private val vibrateKey = booleanPreferencesKey("vibrateKey")
         private val roundedCornerAnimateKey = booleanPreferencesKey("roundedCornerAnimateKey")
+        private val finishAfterScannedKey = booleanPreferencesKey("finishAfterScannedKey")
     }
 
     private val dataStore = app.dataStore
 
-    var vibration: Boolean by mutableStateOf(false)
+    var vibration: Boolean by mutableStateOf(true)
         private set
 
     var roundedCornerAnimate: Boolean by mutableStateOf(false)
+        private set
+
+    var finishAfterScanned: Boolean by mutableStateOf(true)
         private set
 
     init {
         Log.d("[DEBUG]", "vm init: ")
         viewModelScope.launch {
             try {
-                dataStore.data.map {
-                    it[vibrateKey]
-                }.collect(object : FlowCollector<Boolean?> {
-                    override suspend fun emit(value: Boolean?) {
-                        Log.d("[DEBUG]", "vibration changed = $value")
-                        vibration = value ?: true
-                    }
-                })
+                dataStore.data
+                    .map { it[vibrateKey] }
+                    .collect(object : FlowCollector<Boolean?> {
+                        override suspend fun emit(value: Boolean?) {
+                            Log.d("[DEBUG]", "vibration changed = $value")
+                            vibration = value ?: true
+                        }
+                    })
             } catch (e: Exception) {
                 Log.d("[DEBUG]", "vm init exception = $e")
             }
@@ -51,14 +55,29 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
         viewModelScope.launch {
             try {
-                dataStore.data.map {
-                    it[roundedCornerAnimateKey]
-                }.collect(object : FlowCollector<Boolean?> {
-                    override suspend fun emit(value: Boolean?) {
-                        Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
-                        roundedCornerAnimate = value ?: false
-                    }
-                })
+                dataStore.data
+                    .map { it[roundedCornerAnimateKey] }
+                    .collect(object : FlowCollector<Boolean?> {
+                        override suspend fun emit(value: Boolean?) {
+                            Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
+                            roundedCornerAnimate = value ?: false
+                        }
+                    })
+            } catch (e: Exception) {
+                Log.d("[DEBUG]", "vm init exception = $e")
+            }
+        }
+
+        viewModelScope.launch {
+            try {
+                dataStore.data
+                    .map { it[finishAfterScannedKey] }
+                    .collect(object : FlowCollector<Boolean?> {
+                        override suspend fun emit(value: Boolean?) {
+                            Log.d("[DEBUG]", "finishAfterScanned changed = $value")
+                            finishAfterScanned = value ?: true
+                        }
+                    })
             } catch (e: Exception) {
                 Log.d("[DEBUG]", "vm init exception = $e")
             }
@@ -67,13 +86,22 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     suspend fun updateVibrate() {
         dataStore.edit {
-            it[vibrateKey] = it[vibrateKey]?.not() ?: false // default value is true, and first time will be null, so return false when null
+            it[vibrateKey] = it[vibrateKey]?.not()
+                ?: false // default value is true, and first time will be null, so return false when null
         }
     }
 
     suspend fun updateRoundedCornerAnimation() {
         dataStore.edit {
-            it[roundedCornerAnimateKey] = it[roundedCornerAnimateKey]?.not() ?: true // default value is false, and first time will be null, so return true when null
+            it[roundedCornerAnimateKey] = it[roundedCornerAnimateKey]?.not()
+                ?: true // default value is false, and first time will be null, so return true when null
+        }
+    }
+
+    suspend fun updateFinishAfterScanned() {
+        dataStore.edit {
+            it[finishAfterScannedKey] = it[finishAfterScannedKey]?.not()
+                ?: false // default value is true, and first time will be null, so return true when null
         }
     }
 

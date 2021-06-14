@@ -74,6 +74,24 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         onCheckedChange = null
                     )
                 }
+
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clickable(indication = null, interactionSource = interactionSource) {
+                            coroutineScope.launch {
+                                vm.updateFinishAfterScanned()
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "掃描成功後自動關閉App", color = SECONDARY_TEXT_COLOR)
+                    Spacer(modifier = Modifier.size(2.dp))
+                    Switch(
+                        checked = vm.finishAfterScanned,
+                        onCheckedChange = null
+                    )
+                }
             }
         )
     }
