@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tonynowater.qr_scanner_to_sms.utils.dataStore
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.FlowCollector
@@ -41,7 +42,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     init {
         Log.d("[DEBUG]", "vm init: ")
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 dataStore.data
                     .map { it[vibrateKey] }
@@ -56,7 +57,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 dataStore.data
                     .map { it[roundedCornerAnimateKey] }
@@ -71,7 +72,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             }
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
                 dataStore.data
                     .map { it[finishAfterScannedKey] }
