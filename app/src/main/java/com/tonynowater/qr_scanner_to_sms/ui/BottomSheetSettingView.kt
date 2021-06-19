@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.ui.theme.SECONDARY_TEXT_COLOR
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
@@ -63,7 +64,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         .wrapContentSize()
                         .padding(vertical = 2.dp)
                         .clickable(indication = null, interactionSource = interactionSource) {
-                            coroutineScope.launch {
+                            coroutineScope.launch(Dispatchers.IO) {
                                 vm.updateVibrate()
                             }
                         },
@@ -76,7 +77,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     )
                     Spacer(modifier = Modifier.size(2.dp))
                     Switch(
-                        checked = vm.vibration,
+                        checked = vm.settingPreference.isVibration,
                         onCheckedChange = null
                     )
                 }
@@ -88,7 +89,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         .wrapContentSize()
                         .padding(vertical = 2.dp)
                         .clickable(indication = null, interactionSource = interactionSource) {
-                            coroutineScope.launch {
+                            coroutineScope.launch(Dispatchers.IO) {
                                 vm.updateFinishAfterScanned()
                             }
                         },
@@ -101,7 +102,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     )
                     Spacer(modifier = Modifier.size(2.dp))
                     Switch(
-                        checked = vm.finishAfterScanned,
+                        checked = vm.settingPreference.isFinishingAppAfterScan,
                         onCheckedChange = null
                     )
                 }
@@ -116,7 +117,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                             indication = null,
                             interactionSource = interactionSource
                         ) {
-                            coroutineScope.launch {
+                            coroutineScope.launch(Dispatchers.IO) {
                                 vm.updateRoundedCornerAnimation()
                             }
                         },
@@ -129,7 +130,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     )
                     Spacer(modifier = Modifier.size(2.dp))
                     Switch(
-                        checked = vm.roundedCornerAnimate,
+                        checked = vm.settingPreference.isEnableAnimation,
                         onCheckedChange = null
                     )
                 }

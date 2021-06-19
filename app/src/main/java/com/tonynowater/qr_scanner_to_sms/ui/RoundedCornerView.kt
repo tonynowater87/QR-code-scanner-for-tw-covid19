@@ -24,7 +24,7 @@ fun RoundedCornerView(vm: MainViewModel) {
     val infiniteTransition = rememberInfiniteTransition()
     val infinitelyAnimatedFloatStrokeWidth = infiniteTransition.animateFloat(
         initialValue = 12F,
-        targetValue = if (vm.roundedCornerAnimate) 8F else 12F,
+        targetValue = if (vm.settingPreference.isEnableAnimation) 8F else 12F,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = duration),
             repeatMode = RepeatMode.Reverse
@@ -32,8 +32,8 @@ fun RoundedCornerView(vm: MainViewModel) {
     )
 
     val infinitelyAnimatedFloatPosition = infiniteTransition.animateFloat(
-        initialValue = if (vm.roundedCornerAnimate) -10F else 0F,
-        targetValue = if (vm.roundedCornerAnimate) 10F else 0F,
+        initialValue = if (vm.settingPreference.isEnableAnimation) -10F else 0F,
+        targetValue = if (vm.settingPreference.isEnableAnimation) 10F else 0F,
         animationSpec = infiniteRepeatable(
             animation = tween(durationMillis = duration, easing = FastOutSlowInEasing),
             repeatMode = RepeatMode.Reverse

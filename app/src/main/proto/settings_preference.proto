@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "com.tonynowater.qr_scanner_to_sms";
+option java_multiple_files = true;
+
+message SettingsPreference {
+  bool isVibration = 1;
+  bool isFinishingAppAfterScan = 2;
+  bool isEnableAnimation = 3;
+}

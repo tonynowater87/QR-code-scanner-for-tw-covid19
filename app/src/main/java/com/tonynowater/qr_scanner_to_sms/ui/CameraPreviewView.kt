@@ -151,7 +151,7 @@ private fun processImageProxy(
                     }
 
                     if (TWCovid19SmsFormat.isValid(value)) {
-                        if (vm.vibration) {
+                        if (vm.settingPreference.isVibration) {
                             vibrate(context)
                         }
                         temp = value
@@ -162,7 +162,7 @@ private fun processImageProxy(
                             putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
                         })
 
-                        if (vm.finishAfterScanned) {
+                        if (vm.settingPreference.isFinishingAppAfterScan) {
                             (context as? Activity)?.finishAndRemoveTask()
                         }
                     }
