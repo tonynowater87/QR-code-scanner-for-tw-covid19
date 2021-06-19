@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tonynowater.qr_scanner_to_sms.utils.dataStore
@@ -14,8 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.FlowCollector
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.io.IOException
 
 @InternalCoroutinesApi
 class MainViewModel(app: Application) : AndroidViewModel(app) {
@@ -43,48 +46,57 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     init {
         Log.d("[DEBUG]", "vm init: ")
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                dataStore.data
-                    .map { it[vibrateKey] }
-                    .collect(object : FlowCollector<Boolean?> {
-                        override suspend fun emit(value: Boolean?) {
-                            Log.d("[DEBUG]", "vibration changed = $value")
-                            vibration = value ?: true
-                        }
-                    })
-            } catch (e: Exception) {
-                Log.d("[DEBUG]", "vm init exception = $e")
-            }
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[vibrateKey] }
+                .collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        Log.d("[DEBUG]", "vibration changed = $value")
+                        vibration = value ?: true
+                    }
+                })
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                dataStore.data
-                    .map { it[roundedCornerAnimateKey] }
-                    .collect(object : FlowCollector<Boolean?> {
-                        override suspend fun emit(value: Boolean?) {
-                            Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
-                            roundedCornerAnimate = value ?: false
-                        }
-                    })
-            } catch (e: Exception) {
-                Log.d("[DEBUG]", "vm init exception = $e")
-            }
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[roundedCornerAnimateKey] }
+                .collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
+                        roundedCornerAnimate = value ?: false
+                    }
+                })
         }
 
         viewModelScope.launch(Dispatchers.IO) {
-            try {
-                dataStore.data
-                    .map { it[finishAfterScannedKey] }
-                    .collect(object : FlowCollector<Boolean?> {
-                        override suspend fun emit(value: Boolean?) {
-                            Log.d("[DEBUG]", "finishAfterScanned changed = $value")
-                            finishAfterScanned = value ?: true
-                        }
-                    })
-            } catch (e: Exception) {
-                Log.d("[DEBUG]", "vm init exception = $e")
-            }
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[finishAfterScannedKey] }
+                .collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        Log.d("[DEBUG]", "finishAfterScanned changed = $value")
+                        finishAfterScanned = value ?: true
+                    }
+                })
         }
     }
 
