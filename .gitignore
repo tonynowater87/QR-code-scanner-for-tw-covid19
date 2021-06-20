@@ -44,3 +44,10 @@ output.json
 obj/
 .externalNativeBuild
 .cxx/
+
+
+# fastlane
+./fastlane/report.xml
+./fastlane/Preview.html
+./fastlane/test_output
+./.env

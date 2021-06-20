@@ -1,0 +1,96 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+fastlane_require 'dotenv'
+
+default_platform(:android)
+
+before_all do
+  Dotenv.overload '.env'
+end
+
+platform :android do
+
+  desc "Lab"
+  lane :lab do
+    root = Dir.pwd
+    sh("echo", root)
+    sh("echo", ENV['USER'])
+  end
+
+  desc "Deploy a new version to the Google Play"
+  lane :deploy do
+
+    versionName = android_get_version_name(
+        gradle_file: "app/build.gradle"
+    )
+
+    gradle(
+        task: "clean bundleRelease",
+        properties: {
+            "android.injected.signing.store.file" => "#{ENV['KEYSTORE_PATH']}",
+            "android.injected.signing.store.password" => "#{ENV['KEYSTORE_PASSWORD']}",
+            "android.injected.signing.key.alias" => "#{ENV['KEY_ALIAS']}",
+            "android.injected.signing.key.password" => "#{ENV['KEY_PASSWORD']}",
+        }
+    )
+
+    upload_to_play_store(
+        track: "internal",
+        release_status: "draft", # completed
+        mapping: "#{ENV['MAPPING_TEXT_PATH']}",
+        skip_upload_apk: true,
+        skip_upload_metadata: false,
+        skip_upload_images: true,
+        skip_upload_screenshots: true
+    )
+
+    sendMsg(
+        version: versionName,
+        isSuccess: true
+    )
+
+  end
+
+  error do |lane, exception|
+    sh("echo", "on Error: ", exception.to_s())
+    versionName = android_get_version_name(
+        gradle_file: "app/build.gradle"
+    )
+    sendMsg(content: exception.to_s(), version: versionName, isSuccess: false)
+  end
+
+  desc "sendMsg"
+  lane :sendMsg do |options|
+
+    isSuccess = options[:isSuccess]
+    section1Title = options[:content] || ""
+    versionName = options[:version]
+    content = isSuccess ? "Build Successfully" : "Build Failed"
+
+    puts "#{content}, #{versionName}, #{isSuccess}, #{section1Title}"
+
+    google_chat_v2(
+        imageUrl: "",
+        webhook: "#{ENV['GOOGLE_CHAT_HOOK']}",
+        title: "VersionName：#{versionName}",
+        description: content,
+        section1Title: section1Title,
+        section1Description: Time.new.to_s,
+        buttonTitle: "發佈平台: GOOGLE-PLAY-STORE",
+        buttonUrl: "#{ENV['PLAY_STORE_CONSOLE_URL']}"
+    )
+  end
+end
