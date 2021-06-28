@@ -7,10 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.ExperimentalComposeApi
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -62,6 +59,16 @@ fun ContentView(vm: MainViewModel? = null) {
                     BottomSheetSettingView(vm!!)
                 }
             ) {
+
+                if (vm?.qrCodeModel != null) {
+                    QrCodeInfoDialog(
+                        qrCodeModel = vm.qrCodeModel!!,
+                        onDismiss = {
+                            vm.scannedInvalidQRCode(null)
+                        }
+                    )
+                }
+
                 Box(modifier = Modifier
                     .fillMaxSize()
                     .navigationBarsPadding()

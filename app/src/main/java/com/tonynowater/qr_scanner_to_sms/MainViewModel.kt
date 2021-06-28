@@ -10,6 +10,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
 import com.tonynowater.qr_scanner_to_sms.utils.dataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -43,9 +44,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var finishAfterScanned: Boolean by mutableStateOf(true)
         private set
 
+    var qrCodeModel: QRCodeModel? by mutableStateOf(null)
+
     init {
         Log.d("[DEBUG]", "vm init: ")
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataStore.data
                 .catch {
                     if (it is IOException) {
@@ -63,7 +66,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 })
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataStore.data
                 .catch {
                     if (it is IOException) {
@@ -81,7 +84,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 })
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             dataStore.data
                 .catch {
                     if (it is IOException) {
@@ -123,6 +126,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
             it[finishAfterScannedKey] = it[finishAfterScannedKey]?.not()
                 ?: false // default value is true, and first time will be null, so return true when null
         }
+    }
+
+    fun scannedInvalidQRCode(qrCodeModel: QRCodeModel?) {
+        this.qrCodeModel = qrCodeModel
     }
 
     override fun onCleared() {

@@ -1,6 +1,4 @@
 一.簡易設計，安裝後隨掃即用，掃描成功自動關閉，不佔用任何手機資源。
 
-二.本App已過濾若掃到非實聯制的QR Code不會有任何反應
-
-三.本App開放原始碼，不用擔心任何安全疑慮，連結如下：
+二.本App開放原始碼，不用擔心任何安全疑慮，連結如下：
 https://github.com/tonynowater87/QR-code-scanner-for-tw-covid19

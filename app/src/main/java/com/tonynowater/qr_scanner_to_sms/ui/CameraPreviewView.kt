@@ -30,6 +30,7 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
+import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
 import com.tonynowater.qr_scanner_to_sms.utils.TWCovid19SmsFormat
 import kotlinx.coroutines.InternalCoroutinesApi
 import java.util.concurrent.Executors
@@ -141,16 +142,15 @@ private fun processImageProxy(
 
         barcodeScanner.process(inputImage)
             .addOnSuccessListener { barcodeList ->
-                val barcode = barcodeList.getOrNull(0)
-
-                // `rawValue` is the decoded value of the barcode
-                barcode?.rawValue?.let { value ->
+                val barcode = barcodeList.getOrNull(0) ?: return@addOnSuccessListener
+                barcode.rawValue.let { value ->
                     val diffTime = System.currentTimeMillis() - tempTimeStamp
                     if (temp == value && diffTime < intervalTimeInMilliSeconds) {
                         return@addOnSuccessListener
                     }
 
-                    if (TWCovid19SmsFormat.isValid(value)) {
+                    if (barcode.valueType == Barcode.TYPE_SMS && TWCovid19SmsFormat.isValid(value)) {
+                        //Log.d("[DEBUG]", "1922 qr code: $value")
                         if (vm.vibration) {
                             vibrate(context)
                         }
@@ -165,6 +165,9 @@ private fun processImageProxy(
                         if (vm.finishAfterScanned) {
                             (context as? Activity)?.finishAndRemoveTask()
                         }
+                    } else {
+                        //Log.d("[DEBUG]", "not 1922 qr code: $value")
+                        vm.scannedInvalidQRCode(QRCodeModel(type = barcode.valueType, rawValue = barcode.rawValue))
                     }
                 }
             }
@@ -178,7 +181,6 @@ private fun processImageProxy(
                 // call image.close() on received images when finished
                 // using them. Otherwise, new images may not be received
                 // or the camera may stall.
-
                 imageProxy.image?.close()
                 imageProxy.close()
             }
