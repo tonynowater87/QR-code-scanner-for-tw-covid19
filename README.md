@@ -8,11 +8,6 @@ This is a simple app for "簡訊實聯制" in Taiwan
 - MLKit
 - DataStore
 
-## Screenshots
-<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/1_zh-TW.png" width="30%" align="left">
-<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/2_zh-TW.png" width="30%" align="left">
-<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/3_zh-TW.png" width="30%" align="left">
-
 ## Reference
 - [using-googles-mlkit-and-camerax-for-lightweight-barcode-scanning](https://beakutis.medium.com/using-googles-mlkit-and-camerax-for-lightweight-barcode-scanning-bb2038164cdc)
 - [ml-kit/guides](https://developers.google.com/ml-kit/guides)
@@ -21,4 +16,8 @@ This is a simple app for "簡訊實聯制" in Taiwan
 - [Accompanist](https://github.com/google/accompanist)
 - [Lottie for Android Compose](https://github.com/airbnb/lottie/blob/master/android-compose.md)
 
-###### tags: `MyProject`
+## Screenshots
+<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/1_zh-TW.jpeg" width="20%" align="left">
+<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/2_zh-TW.jpeg" width="20%" align="left">
+<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/3_zh-TW.jpeg" width="20%" align="left">
+<img src="fastlane/metadata/android/zh-TW/images/phoneScreenshots/4_zh-TW.jpeg" width="20%" align="left">
