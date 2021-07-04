@@ -49,19 +49,42 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier) {
     val cameraProvideFuture = remember { ProcessCameraProvider.getInstance(context) }
     val executor = ContextCompat.getMainExecutor(context)
 
-    AndroidView(
-        factory = { ctx ->
-            val preview = PreviewView(ctx)
-            preview.implementationMode =
-                PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
-            cameraProvideFuture.addListener({
-                val cameraProvider = cameraProvideFuture.get()
-                bindPreview(context, lifecycleOwner, preview, cameraProvider, vm)
-            }, executor)
-            preview
-        },
-        modifier = modifier
-    )
+    vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
+        if (enableAllBarCodeFormat) {
+            val options =
+                BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_ALL_FORMATS)
+                    .build()
+            AndroidView(
+                factory = { ctx ->
+                    val preview = PreviewView(ctx)
+                    preview.implementationMode =
+                        PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
+                    cameraProvideFuture.addListener({
+                        val cameraProvider = cameraProvideFuture.get()
+                        bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                    }, executor)
+                    preview
+                },
+                modifier = modifier
+            )
+        } else {
+            val options =
+                BarcodeScannerOptions.Builder().setBarcodeFormats(Barcode.FORMAT_QR_CODE).build()
+            AndroidView(
+                factory = { ctx ->
+                    val preview = PreviewView(ctx)
+                    preview.implementationMode =
+                        PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
+                    cameraProvideFuture.addListener({
+                        val cameraProvider = cameraProvideFuture.get()
+                        bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                    }, executor)
+                    preview
+                },
+                modifier = modifier
+            )
+        }
+    }
 }
 
 @InternalCoroutinesApi
@@ -70,7 +93,8 @@ private fun bindPreview(
     lifecycleOwner: LifecycleOwner,
     previewView: PreviewView,
     cameraProvider: ProcessCameraProvider,
-    vm: MainViewModel
+    vm: MainViewModel,
+    options: BarcodeScannerOptions
 ) {
     val preview = Preview.Builder()
         .build()
@@ -86,36 +110,25 @@ private fun bindPreview(
     cameraProvider.bindToLifecycle(
         lifecycleOwner,
         cameraSelector,
-        setupImageAnalysis(context, vm),
+        setupImageAnalysis(context, vm, options),
         preview
     )
 }
 
 @InternalCoroutinesApi
-private fun setupImageAnalysis(context: Context, vm: MainViewModel): ImageAnalysis {
+private fun setupImageAnalysis(context: Context, vm: MainViewModel, options: BarcodeScannerOptions): ImageAnalysis {
 
     // configure our MLKit BarcodeScanning client
 
     /* passing in our desired barcode formats - MLKit supports additional formats outside of the
     ones listed here, and you may not need to offer support for all of these. You should only
     specify the ones you need */
-    val options = BarcodeScannerOptions.Builder().setBarcodeFormats(
-        /*Barcode.FORMAT_CODE_128,
-        Barcode.FORMAT_CODE_39,
-        Barcode.FORMAT_CODE_93,
-        Barcode.FORMAT_EAN_8,
-        Barcode.FORMAT_EAN_13,*/
-        Barcode.FORMAT_QR_CODE,
-        /*Barcode.FORMAT_UPC_A,
-        Barcode.FORMAT_UPC_E,
-        Barcode.FORMAT_PDF417*/
-    ).build()
 
     // getClient() creates a new instance of the MLKit barcode scanner with the specified options
     val scanner = BarcodeScanning.getClient(options)
 
     return ImageAnalysis.Builder()
-        .setTargetResolution(Size(1280, 720))
+        .setTargetResolution(Size(1280, 720)) // minimize image size when device with small ram
         .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
         .build()
         .apply {

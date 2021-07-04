@@ -1,6 +1,5 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -48,10 +47,6 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                         .padding(vertical = 2.dp)
                         .clickable {
                             rememberHiddenFeature.value = rememberHiddenFeature.value + 1
-                            Log.d(
-                                "[DEBUG]",
-                                "rememberHiddenFeature.value = ${rememberHiddenFeature.value}"
-                            )
                         },
                     color = Color.Black
                 )
@@ -70,7 +65,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "掃描成功時震動",
+                        text = "掃描實聯制條碼成功時震動",
                         color = SECONDARY_TEXT_COLOR,
                         style = MaterialTheme.typography.button
                     )
@@ -95,7 +90,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "掃描成功後自動關閉App",
+                        text = "掃描實聯制條碼成功後自動關閉App",
                         color = SECONDARY_TEXT_COLOR,
                         style = MaterialTheme.typography.button
                     )
@@ -106,10 +101,44 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     )
                 }
 
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(vertical = 2.dp)
+                            .clickable(indication = null, interactionSource = interactionSource) {
+                                coroutineScope.launch {
+                                    vm.updateEnableAllBarCodeFormat()
+                                }
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "啟用支援掃描以下所有格式條碼",
+                            color = SECONDARY_TEXT_COLOR,
+                            style = MaterialTheme.typography.button
+                        )
+                        Spacer(modifier = Modifier.size(2.dp))
+                        Switch(
+                            checked = vm.enableAllBarCodeFormat ?: false,
+                            onCheckedChange = null
+                        )
+                    }
+                    Text(
+                        text = "(Code128,Code39,Code93,Codabar,DataMatrix,EAN-13,EAN-8,ITF,UPC-A,UPC-E,QR,AZTEC,PDF417)",
+                        color = SECONDARY_TEXT_COLOR,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 Row(
                     modifier = Modifier
                         .wrapContentSize()
-                        .padding(4.dp)
+                        .padding(vertical = 2.dp)
                         .alpha(if (rememberHiddenFeature.value > 5) 1.0F else 0F)
                         .clickable(
                             enabled = rememberHiddenFeature.value > 5,

@@ -19,13 +19,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
-import com.tonynowater.qr_scanner_to_sms.ui.theme.ACCENT_COLOR
+import com.tonynowater.qr_scanner_to_sms.MainViewModel
+import com.tonynowater.qr_scanner_to_sms.ui.theme.DARK_PRIMARY_COLOR
 import com.tonynowater.qr_scanner_to_sms.ui.theme.LIGHT_PRIMARY_COLOR
 import com.tonynowater.qr_scanner_to_sms.ui.theme.SECONDARY_TEXT_COLOR
+import kotlinx.coroutines.InternalCoroutinesApi
 
+@InternalCoroutinesApi
 @Composable
-fun QrCodeInfoDialog(qrCodeModel: QRCodeModel, onDismiss: () -> Unit) {
+fun QrCodeInfoDialog(vm: MainViewModel, onDismiss: () -> Unit) {
+
+    val qrCodeModel = vm.qrCodeModel!!
+
     AlertDialog(
         modifier = Modifier.clip(RoundedCornerShape(8.dp)),
         shape = MaterialTheme.shapes.large,
@@ -33,17 +38,29 @@ fun QrCodeInfoDialog(qrCodeModel: QRCodeModel, onDismiss: () -> Unit) {
         properties = DialogProperties(),
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    "注意！",
-                    style = MaterialTheme.typography.h6,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Red.copy(alpha = 0.5F)
-                )
-                Text(
-                    "掃描到非實聯制的QRCode",
-                    style = MaterialTheme.typography.body1,
-                    fontWeight = FontWeight.Bold, color = Color.Red.copy(alpha = 0.5F)
-                )
+
+                vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
+                    if (enableAllBarCodeFormat) {
+                        Text(
+                            "掃描成功",
+                            style = MaterialTheme.typography.h6,
+                            fontWeight = FontWeight.Bold,
+                            color = DARK_PRIMARY_COLOR
+                        )
+                    } else {
+                        Text(
+                            "注意！",
+                            style = MaterialTheme.typography.h6,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Red.copy(alpha = 0.5F)
+                        )
+                        Text(
+                            "掃描到非實聯制的QRCode",
+                            style = MaterialTheme.typography.body1,
+                            fontWeight = FontWeight.Bold, color = Color.Red.copy(alpha = 0.5F)
+                        )
+                    }
+                }
             }
         },
         text = {
@@ -74,14 +91,6 @@ fun QrCodeInfoDialog(qrCodeModel: QRCodeModel, onDismiss: () -> Unit) {
                                 .padding(4.dp)
                         )
                     }
-                }
-                if (qrCodeModel.actionText().isEmpty()) {
-                    Text(
-                        modifier = Modifier.padding(top = 20.dp),
-                        text = "小提醒：以上框框內的文字可以長按選取複製",
-                        color = SECONDARY_TEXT_COLOR,
-                        style = MaterialTheme.typography.caption
-                    )
                 }
             }
         },

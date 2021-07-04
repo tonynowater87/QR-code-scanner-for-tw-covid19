@@ -28,11 +28,15 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         private val vibrateKey = booleanPreferencesKey("vibrateKey")
         private val roundedCornerAnimateKey = booleanPreferencesKey("roundedCornerAnimateKey")
         private val finishAfterScannedKey = booleanPreferencesKey("finishAfterScannedKey")
+        private val enableAllBarCodeFormatKey = booleanPreferencesKey("enableAllBarCodeFormat")
     }
 
     private val dataStore = app.dataStore
 
     var enableCameraPermission: Boolean by mutableStateOf(false)
+        private set
+
+    var qrCodeModel: QRCodeModel? by mutableStateOf(null)
         private set
 
     var vibration: Boolean by mutableStateOf(true)
@@ -44,10 +48,11 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var finishAfterScanned: Boolean by mutableStateOf(true)
         private set
 
-    var qrCodeModel: QRCodeModel? by mutableStateOf(null)
+    var enableAllBarCodeFormat: Boolean? by mutableStateOf(null)
+        private set
 
     init {
-        Log.d("[DEBUG]", "vm init: ")
+        //Log.d("[DEBUG]", "vm init: ")
         viewModelScope.launch {
             dataStore.data
                 .catch {
@@ -60,7 +65,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 .map { it[vibrateKey] }
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
-                        Log.d("[DEBUG]", "vibration changed = $value")
+                        //Log.d("[DEBUG]", "vibration changed = $value")
                         vibration = value ?: true
                     }
                 })
@@ -78,7 +83,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 .map { it[roundedCornerAnimateKey] }
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
-                        Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
+                        //Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
                         roundedCornerAnimate = value ?: false
                     }
                 })
@@ -96,8 +101,26 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 .map { it[finishAfterScannedKey] }
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
-                        Log.d("[DEBUG]", "finishAfterScanned changed = $value")
+                        //Log.d("[DEBUG]", "finishAfterScanned changed = $value")
                         finishAfterScanned = value ?: true
+                    }
+                })
+        }
+
+        viewModelScope.launch {
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[enableAllBarCodeFormatKey] }
+                .collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        //Log.d("[DEBUG]", "enableAllBarCodeFormat changed = $value")
+                        enableAllBarCodeFormat = value ?: false
                     }
                 })
         }
@@ -124,7 +147,14 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     suspend fun updateFinishAfterScanned() {
         dataStore.edit {
             it[finishAfterScannedKey] = it[finishAfterScannedKey]?.not()
-                ?: false // default value is true, and first time will be null, so return true when null
+                ?: false // default value is true, and first time will be null, so return false when null
+        }
+    }
+
+    suspend fun updateEnableAllBarCodeFormat() {
+        dataStore.edit {
+            it[enableAllBarCodeFormatKey] = it[enableAllBarCodeFormatKey]?.not()
+                ?: true // default value is false, and first time will be null, so return true when null
         }
     }
 

@@ -1,4 +1,6 @@
-一.簡易設計，安裝後隨掃即用，掃描成功自動關閉，不佔用手機資源。
+一、簡易設計，安裝後隨掃即用，掃描實聯制QR-Code成功後自動關閉，不佔用手機資源。
 
-二.本App開放原始碼，不用擔心任何安全疑慮，連結如下：
+二、多重用途，提供設定支援掃描其它格式條碼(Code128,Code39,Code93,Codabar,DataMatrix,EAN-13,EAN-8,ITF,UPC-A,UPC-E,QR-Code,AZTEC,PDF417)
+
+三.本App開放原始碼，不用擔心任何安全疑慮，連結如下：
 https://github.com/tonynowater87/QR-code-scanner-for-tw-covid19

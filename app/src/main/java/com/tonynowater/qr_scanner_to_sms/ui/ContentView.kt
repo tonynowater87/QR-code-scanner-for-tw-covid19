@@ -62,7 +62,7 @@ fun ContentView(vm: MainViewModel? = null) {
 
                 if (vm?.qrCodeModel != null) {
                     QrCodeInfoDialog(
-                        qrCodeModel = vm.qrCodeModel!!,
+                        vm = vm,
                         onDismiss = {
                             vm.scannedInvalidQRCode(null)
                         }
@@ -146,20 +146,40 @@ fun ContentView(vm: MainViewModel? = null) {
                             Modifier.padding(top = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "實聯制",
-                                color = Color.White,
-                                modifier = Modifier.wrapContentSize(),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.h5
-                            )
-                            Text(
-                                text = " QRCode掃描小工具",
-                                color = Color.White,
-                                modifier = Modifier.wrapContentSize(),
-                                textAlign = TextAlign.Center,
-                                style = MaterialTheme.typography.h6
-                            )
+
+                            vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
+                                if (enableAllBarCodeFormat) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Text(
+                                            text = "萬用條碼掃描器",
+                                            color = Color.White,
+                                            modifier = Modifier.wrapContentSize(),
+                                            style = MaterialTheme.typography.h5
+                                        )
+                                        Text(
+                                            text = "也支援簡訊實聯制QRCode",
+                                            color = Color.White,
+                                            modifier = Modifier.wrapContentSize(),
+                                            style = MaterialTheme.typography.h6
+                                        )
+                                    }
+                                } else {
+                                    Text(
+                                        text = "實聯制",
+                                        color = Color.White,
+                                        modifier = Modifier.wrapContentSize(),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.h5
+                                    )
+                                    Text(
+                                        text = " QRCode掃描小工具",
+                                        color = Color.White,
+                                        modifier = Modifier.wrapContentSize(),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.h6
+                                    )
+                                }
+                            }
                         }
                     }
 
