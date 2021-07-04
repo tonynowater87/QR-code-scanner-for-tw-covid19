@@ -158,7 +158,7 @@ private fun processImageProxy(
                         tempTimeStamp = System.currentTimeMillis()
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            data = (Uri.parse("sms:1922"))
+                            data = Uri.parse("sms:1922")
                             putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
                         })
 
@@ -167,7 +167,13 @@ private fun processImageProxy(
                         }
                     } else {
                         //Log.d("[DEBUG]", "not 1922 qr code: $value")
-                        vm.scannedInvalidQRCode(QRCodeModel(type = barcode.valueType, rawValue = barcode.rawValue))
+                        vm.scannedInvalidQRCode(
+                            QRCodeModel(
+                                type = barcode.valueType,
+                                rawValue = barcode.rawValue,
+                                barcode = barcode
+                            )
+                        )
                     }
                 }
             }

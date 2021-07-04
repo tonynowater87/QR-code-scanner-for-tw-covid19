@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -14,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
+import com.tonynowater.qr_scanner_to_sms.ui.theme.ACCENT_COLOR
+import com.tonynowater.qr_scanner_to_sms.ui.theme.LIGHT_PRIMARY_COLOR
 import com.tonynowater.qr_scanner_to_sms.ui.theme.SECONDARY_TEXT_COLOR
 
 @Composable
@@ -71,15 +75,30 @@ fun QrCodeInfoDialog(qrCodeModel: QRCodeModel, onDismiss: () -> Unit) {
                         )
                     }
                 }
-                Text(
-                    modifier = Modifier.padding(top = 20.dp),
-                    text = "小提醒：以上框框內的文字可以長按選取複製",
-                    color = SECONDARY_TEXT_COLOR,
-                    style = MaterialTheme.typography.caption
-                )
+                if (qrCodeModel.actionText().isEmpty()) {
+                    Text(
+                        modifier = Modifier.padding(top = 20.dp),
+                        text = "小提醒：以上框框內的文字可以長按選取複製",
+                        color = SECONDARY_TEXT_COLOR,
+                        style = MaterialTheme.typography.caption
+                    )
+                }
             }
         },
-        confirmButton = { },
+        confirmButton = {
+            val context = LocalContext.current
+            if (qrCodeModel.actionText().isNotEmpty()) {
+                Button(onClick = {
+                    qrCodeModel.action(context)
+                }) {
+                    Text(
+                        text = qrCodeModel.actionText(),
+                        color = LIGHT_PRIMARY_COLOR,
+                        style = MaterialTheme.typography.button
+                    )
+                }
+            }
+        },
         dismissButton = { }
     )
 }

@@ -9,5 +9,7 @@ val SECONDARY_TEXT_COLOR = Color(0xFF757575)
 val SURFACE_COLOR = Color(0xFFc2c2c2)
 val ACCENT_COLOR = Color(0xFF607D8B)
 
+val JOY_GREEN = Color(0xFF4caf50)
+
 
 
