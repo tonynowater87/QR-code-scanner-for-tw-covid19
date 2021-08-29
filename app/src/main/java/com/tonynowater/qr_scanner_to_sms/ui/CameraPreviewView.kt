@@ -10,14 +10,10 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Size
 import android.widget.Toast
-import androidx.camera.core.CameraSelector
-import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.ImageProxy
-import androidx.camera.core.Preview
+import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
@@ -43,10 +39,11 @@ var intervalTimeInMilliSeconds = 6000L
 //TODO error handling
 @InternalCoroutinesApi
 @Composable
-fun CameraPreviewView(vm: MainViewModel, modifier: Modifier) {
+fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
     val cameraProvideFuture = remember { ProcessCameraProvider.getInstance(context) }
+    val camera = remember { mutableStateOf<Camera?>(null) }
     val executor = ContextCompat.getMainExecutor(context)
 
     vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
@@ -61,7 +58,7 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier) {
                         PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
                     cameraProvideFuture.addListener({
                         val cameraProvider = cameraProvideFuture.get()
-                        bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                        camera.value = bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
                     }, executor)
                     preview
                 },
@@ -77,13 +74,14 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier) {
                         PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
                     cameraProvideFuture.addListener({
                         val cameraProvider = cameraProvideFuture.get()
-                        bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                        camera.value = bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
                     }, executor)
                     preview
                 },
                 modifier = modifier
             )
         }
+        camera.value?.cameraControl?.enableTorch(enableTorch)
     }
 }
 
@@ -94,8 +92,8 @@ private fun bindPreview(
     previewView: PreviewView,
     cameraProvider: ProcessCameraProvider,
     vm: MainViewModel,
-    options: BarcodeScannerOptions
-) {
+    options: BarcodeScannerOptions,
+): Camera {
     val preview = Preview.Builder()
         .build()
         .also {
@@ -107,7 +105,7 @@ private fun bindPreview(
         .build()
 
     cameraProvider.unbindAll()
-    cameraProvider.bindToLifecycle(
+    return cameraProvider.bindToLifecycle(
         lifecycleOwner,
         cameraSelector,
         setupImageAnalysis(context, vm, options),
@@ -116,7 +114,11 @@ private fun bindPreview(
 }
 
 @InternalCoroutinesApi
-private fun setupImageAnalysis(context: Context, vm: MainViewModel, options: BarcodeScannerOptions): ImageAnalysis {
+private fun setupImageAnalysis(
+    context: Context,
+    vm: MainViewModel,
+    options: BarcodeScannerOptions
+): ImageAnalysis {
 
     // configure our MLKit BarcodeScanning client
 

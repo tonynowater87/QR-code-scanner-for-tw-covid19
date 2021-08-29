@@ -1,8 +1,9 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,18 +14,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.consumeAllChanges
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.airbnb.lottie.compose.LottieAnimation
-import com.airbnb.lottie.compose.LottieAnimationSpec
-import com.airbnb.lottie.compose.rememberLottieAnimationState
-import com.google.accompanist.insets.*
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.accompanist.insets.ProvideWindowInsets
+import com.google.accompanist.insets.navigationBarsPadding
+import com.google.accompanist.insets.statusBarsPadding
+import com.google.accompanist.insets.systemBarsPadding
 import com.tonynowater.qr_scanner_to_sms.BuildConfig
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.R
+import com.tonynowater.qr_scanner_to_sms.ui.theme.DARK_PRIMARY_COLOR
 import com.tonynowater.qr_scanner_to_sms.ui.theme.QRScannerToSmsTheme
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
@@ -41,13 +44,21 @@ fun ContentView(vm: MainViewModel? = null) {
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
     )
     val coroutineScope = rememberCoroutineScope()
-    val draggableEnableHeight = LocalConfiguration.current.screenHeightDp.dp / 4 * 3
 
-    val animationSpec = remember { LottieAnimationSpec.RawRes(R.raw.swipe_up_gesture) }
-    val animationState = rememberLottieAnimationState(
-        autoPlay = true,
-        repeatCount = Integer.MAX_VALUE
-    )
+    // add lifecycle listener
+    val lifecycleOwner = rememberUpdatedState(LocalLifecycleOwner.current)
+    DisposableEffect(lifecycleOwner.value) {
+        val lifecycle = lifecycleOwner.value.lifecycle
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                vm?.enableTorch(false)
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose {
+            lifecycle.removeObserver(observer)
+        }
+    }
 
     ProvideWindowInsets {
         QRScannerToSmsTheme {
@@ -79,32 +90,15 @@ fun ContentView(vm: MainViewModel? = null) {
                             }
                         }
                     }
-                    .pointerInput(Unit) {
-                        detectDragGestures { change, dragAmount ->
-                            change.consumeAllChanges()
-                            val (posX, posY) = change.position
-                            val (dragX, dragY) = dragAmount
-                            when {
-                                posY > draggableEnableHeight.toPx() && dragY < 0 -> {
-                                    coroutineScope.launch {
-                                        if (bottomSheetScaffoldState.bottomSheetState.isAnimationRunning) {
-                                            return@launch
-                                        }
-                                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                                            bottomSheetScaffoldState.bottomSheetState.expand()
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }) {
+                ) {
 
                     if (vm!!.enableCameraPermission) {
                         CameraPreviewView(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .shadow(1.dp, RoundedCornerShape(20.dp)),
-                            vm = vm
+                            vm = vm,
+                            enableTorch = vm.enableTorch
                         )
                     }
 
@@ -136,53 +130,51 @@ fun ContentView(vm: MainViewModel? = null) {
                     )
 
                     // toolbar
-                    Box(
+                    Row(
                         modifier = Modifier
-                            .fillMaxSize()
-                            .statusBarsPadding(),
-                        contentAlignment = Alignment.TopCenter
+                            .wrapContentSize()
+                            .statusBarsPadding()
+                            .align(Alignment.TopCenter)
+                            .padding(top = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Row(
-                            Modifier.padding(top = 8.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
 
-                            vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
-                                if (enableAllBarCodeFormat) {
-                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                        Text(
-                                            text = "萬用條碼掃描器",
-                                            color = Color.White,
-                                            modifier = Modifier.wrapContentSize(),
-                                            style = MaterialTheme.typography.h5
-                                        )
-                                        Text(
-                                            text = "也支援簡訊實聯制QRCode",
-                                            color = Color.White,
-                                            modifier = Modifier.wrapContentSize(),
-                                            style = MaterialTheme.typography.h6
-                                        )
-                                    }
-                                } else {
+                        vm.enableAllBarCodeFormat?.let { enableAllBarCodeFormat ->
+                            if (enableAllBarCodeFormat) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                     Text(
-                                        text = "實聯制",
+                                        text = "萬用條碼掃描器",
                                         color = Color.White,
                                         modifier = Modifier.wrapContentSize(),
-                                        textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.h5
                                     )
                                     Text(
-                                        text = " QRCode掃描小工具",
+                                        text = "也支援簡訊實聯制QRCode",
                                         color = Color.White,
                                         modifier = Modifier.wrapContentSize(),
-                                        textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.h6
                                     )
                                 }
+                            } else {
+                                Text(
+                                    text = "實聯制",
+                                    color = Color.White,
+                                    modifier = Modifier.wrapContentSize(),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.h5
+                                )
+                                Text(
+                                    text = " QRCode掃描小工具",
+                                    color = Color.White,
+                                    modifier = Modifier.wrapContentSize(),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.h6
+                                )
                             }
                         }
                     }
 
+                    // rounded corner view
                     Box(
                         modifier = Modifier
                             .fillMaxHeight(0.5F)
@@ -199,40 +191,37 @@ fun ContentView(vm: MainViewModel? = null) {
                             .fillMaxSize(),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        LottieAnimation(
-                            spec = animationSpec,
-                            animationState = animationState,
-                            modifier = Modifier
-                                .size(80.dp)
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = interactionSource
-                                ) {
+                        Row(horizontalArrangement = Arrangement.Center) {
+                            OutlinedButton(
+                                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = DARK_PRIMARY_COLOR),
+                                shape = MaterialTheme.shapes.medium,
+                                border = BorderStroke(1.dp, Color.White),
+                                onClick = { vm.enableTorch(vm.enableTorch.not()) }) {
+                                Image(
+                                    painter = painterResource(id = if (vm.enableTorch) R.drawable.outline_flash_on_24 else R.drawable.outline_flash_off_24),
+                                    contentDescription = "開啟閃光燈"
+                                )
+                            }
+                            Spacer(modifier = Modifier.size(8.dp))
+                            OutlinedButton(
+                                colors = ButtonDefaults.outlinedButtonColors(backgroundColor = DARK_PRIMARY_COLOR),
+                                shape = MaterialTheme.shapes.medium,
+                                border = BorderStroke(1.dp, Color.White),
+                                onClick = {
                                     coroutineScope.launch {
                                         if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                                             bottomSheetScaffoldState.bottomSheetState.expand()
                                         }
                                     }
-                                }
-                        )
-                        Text(
-                            text = "設定請點這裡",
-                            color = Color.White,
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .offset(y = 4.dp)
-                                .clickable(
-                                    indication = null,
-                                    interactionSource = interactionSource
-                                ) {
-                                    coroutineScope.launch {
-                                        if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
-                                            bottomSheetScaffoldState.bottomSheetState.expand()
-                                        }
-                                    }
-                                },
-                            style = MaterialTheme.typography.caption
-                        )
+                                }) {
+                                Text(
+                                    text = "設定",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.button
+                                )
+                            }
+                        }
                     }
 
                     Box(

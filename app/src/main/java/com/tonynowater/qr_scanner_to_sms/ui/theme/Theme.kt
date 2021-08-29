@@ -14,9 +14,9 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = LIGHT_PRIMARY_COLOR,
+    primary = DARK_PRIMARY_COLOR,
     secondary = SECONDARY_TEXT_COLOR,
-    surface = SURFACE_COLOR
+    surface = SURFACE_COLOR,
     /* Other default colors to override
     background = Color.White,
     surface = Color.White,

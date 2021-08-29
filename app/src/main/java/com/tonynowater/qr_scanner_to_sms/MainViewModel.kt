@@ -1,7 +1,6 @@
 package com.tonynowater.qr_scanner_to_sms
 
 import android.app.Application
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,7 +11,6 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
 import com.tonynowater.qr_scanner_to_sms.utils.dataStore
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.FlowCollector
@@ -49,6 +47,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         private set
 
     var enableAllBarCodeFormat: Boolean? by mutableStateOf(null)
+        private set
+
+    var enableTorch: Boolean by mutableStateOf(false)
         private set
 
     init {
@@ -152,6 +153,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     suspend fun updateEnableAllBarCodeFormat() {
+        this.enableTorch = false
         dataStore.edit {
             it[enableAllBarCodeFormatKey] = it[enableAllBarCodeFormatKey]?.not()
                 ?: true // default value is false, and first time will be null, so return true when null
@@ -160,6 +162,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun scannedInvalidQRCode(qrCodeModel: QRCodeModel?) {
         this.qrCodeModel = qrCodeModel
+    }
+
+    fun enableTorch(enableTorch: Boolean) {
+        this.enableTorch = enableTorch
     }
 
     override fun onCleared() {
