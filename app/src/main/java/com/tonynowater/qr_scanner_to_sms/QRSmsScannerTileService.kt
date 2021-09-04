@@ -11,7 +11,7 @@ class QRSmsScannerTileService : TileService() {
         super.onClick()
         val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
         if (launchIntent != null) {
-            startActivity(launchIntent)
+            startActivityAndCollapse(launchIntent)
         }
     }
 
