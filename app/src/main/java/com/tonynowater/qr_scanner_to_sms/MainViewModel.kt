@@ -52,6 +52,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var enableTorch: Boolean by mutableStateOf(false)
         private set
 
+    var peopleCount: Int by mutableStateOf(0)
+        private set
+
     init {
         //Log.d("[DEBUG]", "vm init: ")
         viewModelScope.launch {
@@ -166,6 +169,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun enableTorch(enableTorch: Boolean) {
         this.enableTorch = enableTorch
+    }
+
+    fun addPeopleCount(count: Int) {
+        this.peopleCount = count
     }
 
     override fun onCleared() {

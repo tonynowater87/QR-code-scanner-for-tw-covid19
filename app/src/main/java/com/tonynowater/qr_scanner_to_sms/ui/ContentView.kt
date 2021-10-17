@@ -1,15 +1,13 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
@@ -33,12 +31,15 @@ import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
 
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @ExperimentalComposeApi
 @Composable
 fun ContentView(vm: MainViewModel? = null) {
 
+    val isSelectingPeopleCount = remember { mutableStateOf(false) }
     val interactionSource = remember { MutableInteractionSource() }
     val bottomSheetScaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = BottomSheetState(BottomSheetValue.Collapsed)
@@ -88,6 +89,7 @@ fun ContentView(vm: MainViewModel? = null) {
                             if (bottomSheetScaffoldState.bottomSheetState.isExpanded) {
                                 bottomSheetScaffoldState.bottomSheetState.collapse()
                             }
+                            isSelectingPeopleCount.value = false
                         }
                     }
                 ) {
@@ -191,7 +193,10 @@ fun ContentView(vm: MainViewModel? = null) {
                             .fillMaxSize(),
                         contentAlignment = Alignment.BottomCenter
                     ) {
-                        Row(horizontalArrangement = Arrangement.Center) {
+                        Row(
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
                             OutlinedButton(
                                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
                                 colors = ButtonDefaults.outlinedButtonColors(backgroundColor = DARK_PRIMARY_COLOR),
@@ -213,6 +218,7 @@ fun ContentView(vm: MainViewModel? = null) {
                                         if (bottomSheetScaffoldState.bottomSheetState.isCollapsed) {
                                             bottomSheetScaffoldState.bottomSheetState.expand()
                                         }
+                                        isSelectingPeopleCount.value = false
                                     }
                                 }) {
                                 Text(
@@ -220,6 +226,13 @@ fun ContentView(vm: MainViewModel? = null) {
                                     color = Color.White,
                                     style = MaterialTheme.typography.button
                                 )
+                            }
+                            Spacer(modifier = Modifier.size(8.dp))
+                            PeopleButtonColumn(
+                                isSelectingPeopleCount = isSelectingPeopleCount.value,
+                                vm = vm
+                            ) {
+                                isSelectingPeopleCount.value = it
                             }
                         }
                     }

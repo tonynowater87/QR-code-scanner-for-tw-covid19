@@ -58,7 +58,14 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
                         PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
                     cameraProvideFuture.addListener({
                         val cameraProvider = cameraProvideFuture.get()
-                        camera.value = bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                        camera.value = bindPreview(
+                            context,
+                            lifecycleOwner,
+                            preview,
+                            cameraProvider,
+                            vm,
+                            options
+                        )
                     }, executor)
                     preview
                 },
@@ -74,7 +81,14 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
                         PreviewView.ImplementationMode.COMPATIBLE //why COMPATIBLE can fill screen??
                     cameraProvideFuture.addListener({
                         val cameraProvider = cameraProvideFuture.get()
-                        camera.value = bindPreview(context, lifecycleOwner, preview, cameraProvider, vm, options)
+                        camera.value = bindPreview(
+                            context,
+                            lifecycleOwner,
+                            preview,
+                            cameraProvider,
+                            vm,
+                            options
+                        )
                     }, executor)
                     preview
                 },
@@ -174,7 +188,14 @@ private fun processImageProxy(
                         context.startActivity(Intent(Intent.ACTION_VIEW).apply {
                             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             data = Uri.parse("sms:1922")
-                            putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
+                            if (vm.peopleCount != 0) {
+                                putExtra(
+                                    "sms_body",
+                                    TWCovid19SmsFormat.getBody(value).plus("\n+${vm.peopleCount}")
+                                )
+                            } else {
+                                putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
+                            }
                         })
 
                         if (vm.finishAfterScanned) {

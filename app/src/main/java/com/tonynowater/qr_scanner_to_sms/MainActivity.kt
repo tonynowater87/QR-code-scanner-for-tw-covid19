@@ -8,9 +8,11 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.core.app.ActivityCompat
 import androidx.core.view.WindowCompat
@@ -44,6 +46,8 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+    @ExperimentalFoundationApi
+    @ExperimentalComposeUiApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
@@ -54,6 +58,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalFoundationApi
+@ExperimentalComposeUiApi
 @InternalCoroutinesApi
 @ExperimentalMaterialApi
 @ExperimentalComposeApi
