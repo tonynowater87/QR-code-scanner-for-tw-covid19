@@ -7,15 +7,14 @@ import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
 import com.tonynowater.qr_scanner_to_sms.utils.dataStore
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.FlowCollector
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.io.IOException
 
@@ -27,6 +26,8 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         private val roundedCornerAnimateKey = booleanPreferencesKey("roundedCornerAnimateKey")
         private val finishAfterScannedKey = booleanPreferencesKey("finishAfterScannedKey")
         private val enableAllBarCodeFormatKey = booleanPreferencesKey("enableAllBarCodeFormat")
+        private val enableSaveLastPeopleCountKey = booleanPreferencesKey("enableSaveLastPeopleCountKey")
+        private val saveLastPeopleCountKey = intPreferencesKey("saveLastPeopleCountKey")
     }
 
     private val dataStore = app.dataStore
@@ -52,6 +53,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var enableTorch: Boolean by mutableStateOf(false)
         private set
 
+    var enableSaveLastPeopleCount: Boolean by mutableStateOf(false)
+        private set
+
     var peopleCount: Int by mutableStateOf(0)
         private set
 
@@ -67,6 +71,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 .map { it[vibrateKey] }
+                .distinctUntilChanged()
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
                         //Log.d("[DEBUG]", "vibration changed = $value")
@@ -85,6 +90,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 .map { it[roundedCornerAnimateKey] }
+                .distinctUntilChanged()
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
                         //Log.d("[DEBUG]", "roundedCornerAnimate changed = $value")
@@ -103,6 +109,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 .map { it[finishAfterScannedKey] }
+                .distinctUntilChanged()
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
                         //Log.d("[DEBUG]", "finishAfterScanned changed = $value")
@@ -121,10 +128,51 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                     }
                 }
                 .map { it[enableAllBarCodeFormatKey] }
+                .distinctUntilChanged()
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
                         //Log.d("[DEBUG]", "enableAllBarCodeFormat changed = $value")
                         enableAllBarCodeFormat = value ?: false
+                    }
+                })
+        }
+
+        viewModelScope.launch {
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[enableSaveLastPeopleCountKey] }
+                .distinctUntilChanged()
+                .collect(object : FlowCollector<Boolean?> {
+                    override suspend fun emit(value: Boolean?) {
+                        //Log.d("[DEBUG]", "enableSaveLastPeopleCount changed = $value")
+                        enableSaveLastPeopleCount = value ?: false
+                    }
+                })
+        }
+
+        viewModelScope.launch {
+            dataStore.data
+                .catch {
+                    if (it is IOException) {
+                        emit(emptyPreferences())
+                    } else {
+                        throw it
+                    }
+                }
+                .map { it[saveLastPeopleCountKey] }
+                .distinctUntilChanged()
+                .collect(object : FlowCollector<Int?> {
+                    override suspend fun emit(value: Int?) {
+                        //Log.d("[DEBUG]", "saveLastPeopleCount changed = $value")
+                        if (enableSaveLastPeopleCount) {
+                            peopleCount = value ?: 0
+                        }
                     }
                 })
         }
@@ -160,6 +208,19 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
         dataStore.edit {
             it[enableAllBarCodeFormatKey] = it[enableAllBarCodeFormatKey]?.not()
                 ?: true // default value is false, and first time will be null, so return true when null
+        }
+    }
+
+    suspend fun updateEnableSaveLastPeopleCount() {
+        dataStore.edit {
+            it[enableSaveLastPeopleCountKey] = it[enableSaveLastPeopleCountKey]?.not()
+                ?: true // default value is false, and first time will be null, so return true when null
+        }
+    }
+
+    suspend fun updateSavedLastPeopleCount(count: Int) {
+        dataStore.edit {
+            it[saveLastPeopleCountKey] = count
         }
     }
 

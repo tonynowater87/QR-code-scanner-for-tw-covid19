@@ -28,7 +28,10 @@ import com.google.mlkit.vision.common.InputImage
 import com.tonynowater.qr_scanner_to_sms.MainViewModel
 import com.tonynowater.qr_scanner_to_sms.model.QRCodeModel
 import com.tonynowater.qr_scanner_to_sms.utils.TWCovid19SmsFormat
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 
@@ -42,6 +45,7 @@ var intervalTimeInMilliSeconds = 6000L
 fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolean) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
     val cameraProvideFuture = remember { ProcessCameraProvider.getInstance(context) }
     val camera = remember { mutableStateOf<Camera?>(null) }
     val executor = ContextCompat.getMainExecutor(context)
@@ -63,8 +67,8 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
                             lifecycleOwner,
                             preview,
                             cameraProvider,
-                            vm,
-                            options
+                            options,
+                            { handleResult(context, coroutineScope, vm, it) }
                         )
                     }, executor)
                     preview
@@ -86,8 +90,8 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
                             lifecycleOwner,
                             preview,
                             cameraProvider,
-                            vm,
-                            options
+                            options,
+                            { handleResult(context, coroutineScope, vm, it) }
                         )
                     }, executor)
                     preview
@@ -100,13 +104,70 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
 }
 
 @InternalCoroutinesApi
+fun handleResult(context: Context, coroutineScope: CoroutineScope, vm: MainViewModel, barcodeList: List<Barcode>) {
+    val barcode = barcodeList.getOrNull(0) ?: return
+
+    barcode.rawValue.let { value ->
+        val diffTime = System.currentTimeMillis() - tempTimeStamp
+        if (temp == value && diffTime < intervalTimeInMilliSeconds) {
+            return
+        }
+
+        if (barcode.valueType == Barcode.TYPE_SMS && TWCovid19SmsFormat.isValid(value)) {
+            //Log.d("[DEBUG]", "1922 qr code: $value")
+            if (vm.vibration) {
+                vibrate(context)
+            }
+            temp = value
+            tempTimeStamp = System.currentTimeMillis()
+            context.startActivity(Intent(Intent.ACTION_VIEW).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                data = Uri.parse("sms:1922")
+
+                if (vm.enableSaveLastPeopleCount) {
+                    coroutineScope.launch(context = Dispatchers.IO) {
+                        vm.updateSavedLastPeopleCount(vm.peopleCount)
+                    }
+                } else {
+                    coroutineScope.launch(context = Dispatchers.IO) {
+                        vm.updateSavedLastPeopleCount(0)
+                    }
+                }
+
+                if (vm.peopleCount != 0) {
+                    putExtra(
+                        "sms_body",
+                        TWCovid19SmsFormat.getBody(value).plus("\n+${vm.peopleCount}")
+                    )
+                } else {
+                    putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
+                }
+            })
+
+            if (vm.finishAfterScanned) {
+                (context as? Activity)?.finishAndRemoveTask()
+            }
+        } else {
+            //Log.d("[DEBUG]", "not 1922 qr code: $value")
+            vm.scannedInvalidQRCode(
+                QRCodeModel(
+                    type = barcode.valueType,
+                    rawValue = barcode.rawValue,
+                    barcode = barcode
+                )
+            )
+        }
+    }
+}
+
+@InternalCoroutinesApi
 private fun bindPreview(
     context: Context,
     lifecycleOwner: LifecycleOwner,
     previewView: PreviewView,
     cameraProvider: ProcessCameraProvider,
-    vm: MainViewModel,
     options: BarcodeScannerOptions,
+    onSuccessListener: (result: List<Barcode>) -> Unit
 ): Camera {
     val preview = Preview.Builder()
         .build()
@@ -122,7 +183,7 @@ private fun bindPreview(
     return cameraProvider.bindToLifecycle(
         lifecycleOwner,
         cameraSelector,
-        setupImageAnalysis(context, vm, options),
+        setupImageAnalysis(context, options, onSuccessListener),
         preview
     )
 }
@@ -130,8 +191,8 @@ private fun bindPreview(
 @InternalCoroutinesApi
 private fun setupImageAnalysis(
     context: Context,
-    vm: MainViewModel,
-    options: BarcodeScannerOptions
+    options: BarcodeScannerOptions,
+    onSuccessListener: (result: List<Barcode>) -> Unit
 ): ImageAnalysis {
 
     // configure our MLKit BarcodeScanning client
@@ -149,7 +210,7 @@ private fun setupImageAnalysis(
         .build()
         .apply {
             setAnalyzer(Executors.newSingleThreadExecutor()) {
-                processImageProxy(context, scanner, it, vm)
+                processImageProxy(context, scanner, it, onSuccessListener)
             }
         }
 }
@@ -160,7 +221,7 @@ private fun processImageProxy(
     context: Context,
     barcodeScanner: BarcodeScanner,
     imageProxy: ImageProxy,
-    vm: MainViewModel
+    onSuccessListener: (result: List<Barcode>) -> Unit
 ) {
     imageProxy.image?.let { image ->
         val inputImage =
@@ -171,47 +232,7 @@ private fun processImageProxy(
 
         barcodeScanner.process(inputImage)
             .addOnSuccessListener { barcodeList ->
-                val barcode = barcodeList.getOrNull(0) ?: return@addOnSuccessListener
-                barcode.rawValue.let { value ->
-                    val diffTime = System.currentTimeMillis() - tempTimeStamp
-                    if (temp == value && diffTime < intervalTimeInMilliSeconds) {
-                        return@addOnSuccessListener
-                    }
-
-                    if (barcode.valueType == Barcode.TYPE_SMS && TWCovid19SmsFormat.isValid(value)) {
-                        //Log.d("[DEBUG]", "1922 qr code: $value")
-                        if (vm.vibration) {
-                            vibrate(context)
-                        }
-                        temp = value
-                        tempTimeStamp = System.currentTimeMillis()
-                        context.startActivity(Intent(Intent.ACTION_VIEW).apply {
-                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            data = Uri.parse("sms:1922")
-                            if (vm.peopleCount != 0) {
-                                putExtra(
-                                    "sms_body",
-                                    TWCovid19SmsFormat.getBody(value).plus("\n+${vm.peopleCount}")
-                                )
-                            } else {
-                                putExtra("sms_body", TWCovid19SmsFormat.getBody(value))
-                            }
-                        })
-
-                        if (vm.finishAfterScanned) {
-                            (context as? Activity)?.finishAndRemoveTask()
-                        }
-                    } else {
-                        //Log.d("[DEBUG]", "not 1922 qr code: $value")
-                        vm.scannedInvalidQRCode(
-                            QRCodeModel(
-                                type = barcode.valueType,
-                                rawValue = barcode.rawValue,
-                                barcode = barcode
-                            )
-                        )
-                    }
-                }
+                onSuccessListener.invoke(barcodeList)
             }
             .addOnFailureListener {
                 // This failure will happen if the barcode scanning model

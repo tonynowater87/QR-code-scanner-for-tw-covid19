@@ -10,8 +10,8 @@ android {
         applicationId "com.tonynowater.qr_scanner_to_sms"
         minSdk 21
         targetSdk 30
-        versionCode 12
-        versionName "1.2.0"
+        versionCode 13
+        versionName "1.3.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

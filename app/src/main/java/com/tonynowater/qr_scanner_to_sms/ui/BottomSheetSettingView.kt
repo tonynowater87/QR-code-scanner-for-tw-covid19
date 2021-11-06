@@ -34,7 +34,7 @@ fun BottomSheetSettingView(vm: MainViewModel) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(20.dp)
-            .height(200.dp)
+            .height(250.dp)
     ) {
         Column(
             modifier = Modifier.padding(0.dp),
@@ -98,6 +98,38 @@ fun BottomSheetSettingView(vm: MainViewModel) {
                     Switch(
                         checked = vm.finishAfterScanned,
                         onCheckedChange = null
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Column {
+                    Row(
+                        modifier = Modifier
+                            .wrapContentSize()
+                            .padding(vertical = 2.dp)
+                            .clickable(indication = null, interactionSource = interactionSource) {
+                                coroutineScope.launch {
+                                    vm.updateEnableSaveLastPeopleCount()
+                                }
+                            },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "記住最後掃描實聯制成功的同行人數",
+                            color = SECONDARY_TEXT_COLOR,
+                            style = MaterialTheme.typography.button
+                        )
+                        Spacer(modifier = Modifier.size(2.dp))
+                        Switch(
+                            checked = vm.enableSaveLastPeopleCount,
+                            onCheckedChange = null
+                        )
+                    }
+                    Text(
+                        text = "(每次開啟後會回復上次掃描時的同行人數)",
+                        color = SECONDARY_TEXT_COLOR,
+                        style = MaterialTheme.typography.caption
                     )
                 }
 
