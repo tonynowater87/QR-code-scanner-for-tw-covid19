@@ -5,7 +5,7 @@ import android.net.Uri
 import android.provider.ContactsContract
 import android.widget.Toast
 import androidx.compose.ui.graphics.Color
-import com.google.mlkit.vision.barcode.Barcode
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.tonynowater.qr_scanner_to_sms.ui.theme.JOY_GREEN
 
 data class QRCodeModel(
@@ -23,16 +23,16 @@ data class QRCodeModel(
                     context.startActivity(
                         Intent(
                             Intent.ACTION_VIEW,
-                            Uri.parse("sms:${barcode.sms.phoneNumber}")
+                            Uri.parse("sms:${barcode.sms?.phoneNumber}")
                         ).apply {
-                            putExtra("sms_body", barcode.sms.message)
+                            putExtra("sms_body", barcode.sms?.message)
                         })
                 }
                 Barcode.TYPE_PHONE -> {
                     context.startActivity(
                         Intent(
                             Intent.ACTION_DIAL,
-                            Uri.fromParts("tel", barcode.phone.number, null)
+                            Uri.fromParts("tel", barcode.phone?.number, null)
                         )
                     )
                 }
@@ -42,29 +42,29 @@ data class QRCodeModel(
                             type = ContactsContract.RawContacts.CONTENT_TYPE
                             putExtra(
                                 ContactsContract.Intents.Insert.NAME,
-                                barcode.contactInfo.name.formattedName ?: ""
+                                barcode.contactInfo?.name?.formattedName ?: ""
                             )
                             putExtra(
                                 ContactsContract.Intents.Insert.COMPANY,
-                                barcode.contactInfo.organization ?: ""
+                                barcode.contactInfo?.organization ?: ""
                             )
                             putExtra(
                                 ContactsContract.Intents.Insert.EMAIL,
-                                barcode.contactInfo.emails.firstOrNull()?.address ?: ""
+                                barcode.contactInfo?.emails?.firstOrNull()?.address ?: ""
                             )
                             putExtra(
                                 ContactsContract.Intents.Insert.EMAIL_TYPE,
-                                barcode.contactInfo.emails.firstOrNull()?.type
+                                barcode.contactInfo?.emails?.firstOrNull()?.type
                                     ?: ContactsContract.CommonDataKinds.Email.TYPE_OTHER
                             )
                             putExtra(
                                 ContactsContract.Intents.Insert.PHONE,
-                                barcode.contactInfo.phones.firstOrNull()?.number
+                                barcode.contactInfo?.phones?.firstOrNull()?.number
                                     ?: ContactsContract.CommonDataKinds.Phone.TYPE_OTHER
                             )
                             putExtra(
                                 ContactsContract.Intents.Insert.PHONE_TYPE,
-                                barcode.contactInfo.phones.firstOrNull()?.type
+                                barcode.contactInfo?.phones?.firstOrNull()?.type
                                     ?: ContactsContract.CommonDataKinds.Phone.TYPE_OTHER
                             )
                         }

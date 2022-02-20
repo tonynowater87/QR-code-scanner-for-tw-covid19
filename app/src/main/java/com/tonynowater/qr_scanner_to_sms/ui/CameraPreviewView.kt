@@ -20,7 +20,7 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
-import com.google.mlkit.vision.barcode.Barcode
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -107,7 +107,7 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
 fun handleResult(context: Context, coroutineScope: CoroutineScope, vm: MainViewModel, barcodeList: List<Barcode>) {
     val barcode = barcodeList.getOrNull(0) ?: return
 
-    barcode.rawValue.let { value ->
+    barcode.rawValue?.let { value ->
         val diffTime = System.currentTimeMillis() - tempTimeStamp
         if (temp == value && diffTime < intervalTimeInMilliSeconds) {
             return
@@ -152,7 +152,7 @@ fun handleResult(context: Context, coroutineScope: CoroutineScope, vm: MainViewM
             vm.scannedInvalidQRCode(
                 QRCodeModel(
                     type = barcode.valueType,
-                    rawValue = barcode.rawValue,
+                    rawValue = value,
                     barcode = barcode
                 )
             )
