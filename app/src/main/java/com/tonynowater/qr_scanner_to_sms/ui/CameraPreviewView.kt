@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.util.Size
 import android.widget.Toast
 import androidx.camera.core.*
@@ -38,6 +39,7 @@ import java.util.concurrent.Executors
 var temp = ""
 var tempTimeStamp = 0L
 var intervalTimeInMilliSeconds = 6000L
+var scannedIntervalTimeInMilliSeconds = 500L
 
 //TODO error handling
 @InternalCoroutinesApi
@@ -104,10 +106,40 @@ fun CameraPreviewView(vm: MainViewModel, modifier: Modifier, enableTorch: Boolea
 }
 
 @InternalCoroutinesApi
-fun handleResult(context: Context, coroutineScope: CoroutineScope, vm: MainViewModel, barcodeList: List<Barcode>) {
+fun handleResult(
+    context: Context,
+    coroutineScope: CoroutineScope,
+    vm: MainViewModel,
+    barcodeList: List<Barcode>
+) {
+
+    if (barcodeList.isEmpty()) return
+
     val barcode = barcodeList.getOrNull(0) ?: return
 
+
+    if (vm.enableAllBarCodeFormat == true) {
+
+        if (tempTimeStamp != 0L && (System.currentTimeMillis() - tempTimeStamp) < scannedIntervalTimeInMilliSeconds) {
+            return
+        }
+
+        tempTimeStamp = System.currentTimeMillis()
+
+        vm.scannedQRCodes(barcodeList.map {
+            QRCodeModel(
+                type = it.valueType,
+                rawValue = it.rawValue!!,
+                barcode = it
+            )
+        })
+        return
+    }
+
+    // handle 1922 sms format
     barcode.rawValue?.let { value ->
+        // Log.d("[DEBUG]", "raw barcode: $value")
+
         val diffTime = System.currentTimeMillis() - tempTimeStamp
         if (temp == value && diffTime < intervalTimeInMilliSeconds) {
             return

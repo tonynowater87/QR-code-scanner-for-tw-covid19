@@ -38,6 +38,9 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
     var qrCodeModel: QRCodeModel? by mutableStateOf(null)
         private set
 
+    var qrCodeModelList: List<QRCodeModel> by mutableStateOf(emptyList())
+        private set
+
     var vibration: Boolean by mutableStateOf(true)
         private set
 
@@ -132,7 +135,7 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
                 .collect(object : FlowCollector<Boolean?> {
                     override suspend fun emit(value: Boolean?) {
                         //Log.d("[DEBUG]", "enableAllBarCodeFormat changed = $value")
-                        enableAllBarCodeFormat = value ?: false
+                        enableAllBarCodeFormat = value ?: true
                     }
                 })
         }
@@ -226,6 +229,10 @@ class MainViewModel(app: Application) : AndroidViewModel(app) {
 
     fun scannedInvalidQRCode(qrCodeModel: QRCodeModel?) {
         this.qrCodeModel = qrCodeModel
+    }
+
+    fun scannedQRCodes(qrCodeModelList: List<QRCodeModel>) {
+        this.qrCodeModelList = qrCodeModelList
     }
 
     fun enableTorch(enableTorch: Boolean) {

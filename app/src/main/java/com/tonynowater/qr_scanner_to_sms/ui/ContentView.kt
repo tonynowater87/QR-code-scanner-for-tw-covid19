@@ -1,5 +1,6 @@
 package com.tonynowater.qr_scanner_to_sms.ui
 
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
@@ -71,6 +72,14 @@ fun ContentView(vm: MainViewModel? = null) {
                     BottomSheetSettingView(vm!!)
                 }
             ) {
+
+
+                Log.d("[DEBUG", "ContentView: qrCodeModel: ${vm?.qrCodeModel}, qrCodeModelList: ${vm?.qrCodeModelList}")
+                if (vm?.qrCodeModelList?.isNotEmpty() == true) {
+                    QrCodeListInfoDialog(vm = vm) {
+                        vm.scannedQRCodes(emptyList())
+                    }
+                }
 
                 if (vm?.qrCodeModel != null) {
                     QrCodeInfoDialog(

@@ -120,4 +120,15 @@ data class QRCodeModel(
         Barcode.TYPE_DRIVER_LICENSE -> Color.Black.copy(alpha = 0.25F)
         else -> Color.Black.copy(alpha = 0.25F)
     }
+
+    fun copy(context: Context) {
+        val clipboardManager =
+            context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        clipboardManager.setPrimaryClip(
+            ClipData.newPlainText(
+                "bar code value",
+                rawValue
+            )
+        )
+    }
 }
