@@ -4,12 +4,12 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.tonynowater.qr_scanner_to_sms"
         minSdk 21
-        targetSdk 31
+        targetSdk 33
         versionCode 14
         versionName "1.4.0"
 
